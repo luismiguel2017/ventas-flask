@@ -1,0 +1,104 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f9;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding-top: 40px;
+}
+
+.container {
+  width: 400px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.tabs {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.tab {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+  background-color: #007BFF;
+  color: white;
+  border-radius: 4px 4px 0 0;
+}
+
+.tab.active {
+  background-color: #fff;
+  color: #007BFF;
+  border: 1px solid #007BFF;
+  border-bottom: none;
+}
+
+.seccion {
+  display: none;
+}
+
+.seccion.activa {
+  display: block;
+}
+
+input, button {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.guardar {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  margin-top: 15px;
+}
+
+.guardar:hover {
+  background-color: #45a049;
+}
+
+.confirmar {
+  background-color: #FFA500;
+  color: white;
+  border: none;
+  margin-top: 15px;
+}
+
+.confirmar:hover {
+  background-color: #e69500;
+}
+
+#buscar {
+  margin-bottom: 10px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.popup-pequeno {
+  width: 300px !important;   /* ancho más pequeño */
+  font-size: 14px;           /* texto más compacto */
+}
