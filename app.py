@@ -1,16 +1,17 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 import psycopg2
+import os
 
 app = Flask(__name__)
 
-# Conexión a PostgreSQL
+# Conexión a PostgreSQL usando variables de entorno
 def get_conn():
     return psycopg2.connect(
-        host="localhost",
+        host=os.environ.get("DB_HOST"),
         port="5432",
-        database="ventas",
-        user="postgres",
-        password="luis1988",   # cámbiala si usas otra contraseña
+        database=os.environ.get("DB_NAME"),
+        user=os.environ.get("DB_USER"),
+        password=os.environ.get("DB_PASS"),
         options='-c client_encoding=UTF8'
     )
 
@@ -73,6 +74,19 @@ def registrar_venta():
     conn.close()
 
     return jsonify({"mensaje": "Venta registrada", "venta_id": venta_id})
+
+# Endpoint de prueba de conexión
+@app.route("/test_db")
+def test_db():
+    try:
+        conn = get_conn()
+        cursor = conn.cursor()
+        cursor.execute("SELECT 1;")
+        cursor.close()
+        conn.close()
+        return jsonify({"status": "ok", "message": "Conexión exitosa a PostgreSQL"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)
