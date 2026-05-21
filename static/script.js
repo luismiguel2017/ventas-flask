@@ -3,12 +3,16 @@ function mostrarSeccion(id) {
   document.querySelectorAll('.seccion').forEach(sec => sec.classList.remove('activa'));
   document.getElementById(id).classList.add('activa');
 
-  document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-  document.querySelector(`.tab[onclick="mostrarSeccion('${id}')"]`).classList.add('active');
+  // Marcar botón activo
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.classList.remove('btn-primary', 'activo');
+    tab.classList.add('btn-outline-primary');
+  });
+  const tabActivo = document.querySelector(`.tab[onclick="mostrarSeccion('${id}')"]`);
+  tabActivo.classList.remove('btn-outline-primary');
+  tabActivo.classList.add('btn-primary', 'activo');
 
-  if (id === 'venta') {
-    cargarProductos();
-  }
+  if (id === 'venta') cargarProductos();
 }
 
 // Cargar productos desde Flask
@@ -18,31 +22,40 @@ function cargarProductos() {
     .then(data => {
       const tbody = document.querySelector('#tablaProductos tbody');
       tbody.innerHTML = '';
+
+      if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">No hay productos registrados</td></tr>';
+        return;
+      }
+
       data.forEach(prod => {
-        // prod = [nombre, precio, id]
         const fila = document.createElement('tr');
-        fila.dataset.productoId = prod[2]; // guardar id del producto
+        fila.dataset.productoId = prod[2];
+        fila.dataset.precio = prod[1];
         fila.innerHTML = `
           <td>${prod[0]}</td>
-          <td>${parseFloat(prod[1]).toFixed(2)}</td>
-          <td><input type="number" min="1" value="1" style="width:60px"></td>
-          <td><input type="checkbox"></td>
+          <td>S/ ${parseFloat(prod[1]).toFixed(2)}</td>
+          <td><input type="number" min="1" value="1" class="form-control form-control-sm" style="width:70px"></td>
+          <td class="text-center"><input type="checkbox" class="form-check-input"></td>
         `;
         tbody.appendChild(fila);
       });
     })
-    .catch(error => console.error('Error al cargar productos:', error));
+    .catch(() => {
+      const tbody = document.querySelector('#tablaProductos tbody');
+      tbody.innerHTML = '<tr><td colspan="4" class="text-center text-danger py-3">Error al cargar productos</td></tr>';
+    });
 }
 
-// Filtro de productos
+// Filtro de búsqueda
 document.addEventListener('DOMContentLoaded', () => {
   const buscar = document.getElementById('buscar');
   if (buscar) {
-    buscar.addEventListener('keyup', function() {
+    buscar.addEventListener('keyup', function () {
       const texto = this.value.toLowerCase();
       const filas = document.querySelectorAll('#tablaProductos tbody tr');
       filas.forEach(fila => {
-        const nombre = fila.querySelector('td').textContent.toLowerCase();
+        const nombre = fila.querySelector('td')?.textContent.toLowerCase() || '';
         fila.style.display = nombre.includes(texto) ? '' : 'none';
       });
     });
@@ -58,11 +71,12 @@ document.addEventListener('DOMContentLoaded', () => {
       filas.forEach(fila => {
         const checkbox = fila.querySelector('input[type="checkbox"]');
         const cantidadInput = fila.querySelector('input[type="number"]');
-        if (checkbox.checked) {
+        if (checkbox && checkbox.checked) {
           productos.push({
             id: fila.dataset.productoId,
             nombre: fila.querySelector('td').textContent,
-            cantidad: parseInt(cantidadInput.value)
+            cantidad: parseInt(cantidadInput.value),
+            precio: parseFloat(fila.dataset.precio)
           });
         }
       });
@@ -83,24 +97,44 @@ document.addEventListener('DOMContentLoaded', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ productos })
       })
-      .then(res => res.json())
-      .then(data => {
-        Swal.fire({
-          icon: 'success',
-          title: 'Venta registrada',
-          text: `ID de venta: ${data.venta_id}`,
-          confirmButtonText: 'OK',
-          confirmButtonColor: '#3085d6'
+        .then(res => res.json())
+        .then(data => {
+          const total = productos.reduce((acc, p) => acc + p.cantidad * p.precio, 0);
+
+          Swal.fire({
+            icon: 'success',
+            title: '¡Venta registrada!',
+            text: `Total: S/ ${total.toFixed(2)}`,
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#3085d6'
+          }).then(() => {
+            // Limpiar selección y cantidades
+            document.querySelectorAll('#tablaProductos input[type="checkbox"]').forEach(cb => cb.checked = false);
+            document.querySelectorAll('#tablaProductos input[type="number"]').forEach(inp => inp.value = 1);
+          });
+        })
+        .catch(() => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo registrar la venta. Intenta nuevamente.',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#d33'
+          });
         });
-      })
-      .catch(err => console.error('Error al registrar venta:', err));
     });
+  }
+
+  // Marcar pestaña Ingresar Producto como activa al cargar
+  const tabInicio = document.querySelector(`.tab[onclick="mostrarSeccion('producto')"]`);
+  if (tabInicio) {
+    tabInicio.classList.remove('btn-outline-primary');
+    tabInicio.classList.add('btn-primary', 'activo');
   }
 });
 
-// Alerta moderna al registrar producto con botón OK
+// Alerta al registrar producto
 function mostrarMensaje(event) {
-  // Evita envío inmediato
   event.preventDefault();
 
   Swal.fire({
@@ -111,13 +145,12 @@ function mostrarMensaje(event) {
     confirmButtonColor: '#3085d6',
     allowOutsideClick: false,
     allowEscapeKey: false,
-    showConfirmButton: true,
     customClass: {
       popup: 'popup-pequeno'
     }
   }).then((result) => {
     if (result.isConfirmed) {
-      event.target.submit(); // envía el formulario después de cerrar el popup
+      event.target.submit();
     }
   });
 

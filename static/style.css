@@ -63,3 +63,9 @@ th {
     font-size: 0.85rem;
   }
 }
+
+.tab.activo {
+  background-color: #0d6efd;
+  color: white;
+  border-color: #0d6efd;
+}
