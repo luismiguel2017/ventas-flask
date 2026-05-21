@@ -111,7 +111,13 @@ document.addEventListener('DOMContentLoaded', () => {
             // Limpiar selección y cantidades
             document.querySelectorAll('#tablaProductos input[type="checkbox"]').forEach(cb => cb.checked = false);
             document.querySelectorAll('#tablaProductos input[type="number"]').forEach(inp => inp.value = 1);
-          });
+              // Limpiar buscador y mostrar todas las filas
+                const buscar = document.getElementById('buscar');
+                if (buscar) {
+                    buscar.value = '';
+                    document.querySelectorAll('#tablaProductos tbody tr').forEach(f => f.style.display = '');
+                }
+        });
         })
         .catch(() => {
           Swal.fire({
