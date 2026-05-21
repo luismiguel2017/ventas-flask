@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const filas = document.querySelectorAll('#tablaProductos tbody tr');
       filas.forEach(fila => {
         const nombre = fila.querySelector('td').textContent.toLowerCase();
-        fila.style.display = nombre.startsWith(texto) ? '' : 'none';
+        fila.style.display = nombre.includes(texto) ? '' : 'none';
       });
     });
   }
