@@ -1,30 +1,8 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
-}
-
-body {
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-}
-
-.overlay {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.45);
-    backdrop-filter: blur(2px);
-}
-
 .login-container {
     position: relative;
-    width: 380px;
-    padding: 45px 35px;
+    width: 92%;
+    max-width: 480px;
+    padding: 55px 40px;
     border-radius: 25px;
     background: rgba(67, 40, 24, 0.78);
     backdrop-filter: blur(10px);
@@ -32,18 +10,11 @@ body {
     z-index: 2;
 }
 
-.logo {
-    text-align: center;
-    color: #f6d2ab;
-    font-size: 60px;
-    margin-bottom: 10px;
-}
-
 h2 {
     color: white;
     text-align: center;
-    font-size: 36px;
-    line-height: 45px;
+    font-size: 42px;
+    line-height: 52px;
     margin-bottom: 10px;
 }
 
@@ -51,85 +22,54 @@ h2 {
     text-align: center;
     color: #e0c3aa;
     margin-bottom: 35px;
-    font-size: 18px;
-}
-
-.mb-3 {
-    margin-bottom: 22px;
+    font-size: 20px;
 }
 
 .form-label {
     display: block;
     color: #e0c3aa;
-    font-size: 15px;
+    font-size: 18px;
     margin-bottom: 6px;
 }
 
 .form-control {
     width: 100%;
-    padding: 18px 20px;
+    padding: 20px 20px;
     border: none;
     outline: none;
     border-radius: 14px;
     background: rgba(255,255,255,0.08);
     color: white;
-    font-size: 16px;
+    font-size: 18px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-}
-
-.form-control::placeholder {
-    color: #d9c0ab;
-}
-
-.form-control:focus {
-    background: rgba(255,255,255,0.14);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.35);
 }
 
 .btn-coffee {
     width: 100%;
-    padding: 18px;
+    padding: 20px;
     border: none;
     border-radius: 14px;
     background: #c98a52;
     color: white;
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 600;
     cursor: pointer;
     margin-top: 10px;
     transition: 0.3s;
 }
 
-.btn-coffee:hover {
-    background: #b8773f;
-    color: white;
-}
-
-.form-check {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 25px;
-    gap: 10px;
-}
-
 .form-check-label {
     color: #d8b79d;
-    font-size: 16px;
-}
-
-.form-check-input {
-    width: 18px;
-    height: 18px;
+    font-size: 18px;
 }
 
 @media (max-width: 768px) {
     .login-container {
-        width: 88%;
-        padding: 40px 28px;
+        width: 92%;
+        padding: 50px 30px;
     }
     h2 {
-        font-size: 28px;
-        line-height: 38px;
+        font-size: 36px;
+        line-height: 46px;
     }
 }
