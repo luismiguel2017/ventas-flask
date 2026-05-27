@@ -1,6 +1,5 @@
-# login.py
 from flask import Blueprint, render_template, request, redirect, url_for, session
-import psycopg2
+from app import get_conn   # Importar la función de conexión centralizada
 
 # Crear blueprint
 login_bp = Blueprint("login", __name__)
@@ -11,22 +10,24 @@ def login():
         usuario = request.form["usuario"]
         contrasena = request.form["contrasena"]
 
-        # Validar contra la base de datos en Render
-        conn = psycopg2.connect("dbname=ventas user=postgres password=tu_password host=tu_host")
+        # Usar la conexión centralizada
+        conn = get_conn()
         cur = conn.cursor()
-        cur.execute("SELECT * FROM usuarios WHERE usuario=%s AND contrasena=%s", (usuario, contrasena))
+        cur.execute("SELECT id, rol FROM usuarios WHERE usuario=%s AND contrasena=%s", (usuario, contrasena))
         user = cur.fetchone()
+        cur.close()
         conn.close()
 
         if user:
             session["usuario"] = usuario
-            return redirect(url_for("dashboard"))
+            session["rol"] = user[1]
+            return redirect(url_for("index"))  # redirige al dashboard principal
         else:
-            return "⚠️ Usuario o contraseña incorrectos"
+            return render_template("login.html", error="⚠️ Usuario o contraseña incorrectos")
 
     return render_template("login.html")
 
 @login_bp.route("/logout")
 def logout():
     session.pop("usuario", None)
-    return redirect(url_for("login"))
+    return redirect(url_for("login.login"))
