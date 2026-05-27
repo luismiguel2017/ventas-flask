@@ -1,11 +1,25 @@
-/* Fuente y fondo */
+/* Fuente y fondo global */
 body {
     font-family: 'Segoe UI', Arial, sans-serif;
-    background: url('https://i.ytimg.com/vi/Ew0cCLyGsgQ/hq720.jpg') no-repeat center center fixed;
-    background-size: cover;
-    min-height: 100vh;
     margin: 0;
     padding: 0;
+    min-height: 100vh;
+}
+
+/* Fondo cafetería para login */
+.login-body {
+    background: url("{{ url_for('static', filename='cafe.jpeg') }}") no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Fondo cafetería para dashboard/productos/ventas */
+.dashboard-body {
+    background: url("{{ url_for('static', filename='cafe.jpeg') }}") no-repeat center center fixed;
+    background-size: cover;
+    min-height: 100vh;
 }
 
 /* Contenedor central */
