@@ -1,8 +1,17 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session
-from app import get_conn   # Importar la función de conexión centralizada
+import psycopg2, os
 
-# Crear blueprint
 login_bp = Blueprint("login", __name__)
+
+def get_conn():
+    return psycopg2.connect(
+           host=os.environ.get("DB_HOST"),
+        port="5432",
+        database=os.environ.get("DB_NAME"),
+        user=os.environ.get("DB_USER"),
+        password=os.environ.get("DB_PASS"),
+        options='-c client_encoding=UTF8'
+    )
 
 @login_bp.route("/login", methods=["GET", "POST"])
 def login():
@@ -10,7 +19,6 @@ def login():
         usuario = request.form["usuario"]
         contrasena = request.form["contrasena"]
 
-        # Usar la conexión centralizada
         conn = get_conn()
         cur = conn.cursor()
         cur.execute("SELECT id, rol FROM usuarios WHERE usuario=%s AND contrasena=%s", (usuario, contrasena))
