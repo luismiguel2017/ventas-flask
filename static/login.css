@@ -1,88 +1,113 @@
-/* Fondo solo para el login */
+/* Fuente y fondo global */
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
 
+.login-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+}
 
-/* Contenedor del formulario */
 .login-container {
     width: 100%;
     max-width: 500px;
-    min-height: 420px;
-    background: rgba(255, 248, 240, 0.95);
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0px 6px 15px rgba(0,0,0,0.4);
+    background: rgba(74, 42, 28, 0.88);
+    padding: 50px 40px;
+    border-radius: 20px;
+    box-shadow: 0px 8px 30px rgba(0,0,0,0.6);
     text-align: center;
+    color: #f5e6d3;
 }
 
-/* Logo estilo café */
 .logo {
-    font-size: 60px;
+    font-size: 70px;
     margin-bottom: 10px;
-    color: #6f4e37; /* tono café */
 }
 
-/* Títulos */
 h2 {
-    color: #4b2e2e;
+    color: #f5e6d3;
     font-weight: bold;
-    margin-bottom: 10px;
+    font-size: 2.2rem;
+    margin-bottom: 8px;
 }
 
 .subtitle {
-    color: #7a5c5c;
-    margin-bottom: 20px;
+    color: #d4b89a;
+    font-size: 1.2rem;
+    margin-bottom: 30px;
 }
 
-/* Labels */
 .form-label {
-    color: #4b2e2e;
+    color: #f5e6d3;
     font-weight: 500;
+    font-size: 1.1rem;
+    text-align: left;
+    display: block;
 }
 
-/* Botón estilo café */
+.form-control {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 10px;
+    color: #f5e6d3;
+    font-size: 1.2rem;
+    padding: 16px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-control::placeholder {
+    color: rgba(245, 230, 211, 0.5);
+}
+
+.form-control:focus {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: #c19a6b;
+    outline: none;
+    box-shadow: none;
+    color: #f5e6d3;
+}
+
 .btn-coffee {
-    background-color: #6f4e37;
+    background-color: #c19a6b;
     color: #fff;
     border: none;
     font-weight: bold;
     width: 100%;
-    padding: 12px;
-    border-radius: 6px;
+    padding: 16px;
+    border-radius: 10px;
+    font-size: 1.3rem;
+    margin-top: 10px;
+    cursor: pointer;
 }
 
 .btn-coffee:hover {
-    background-color: #4b2e2e;
+    background-color: #a0784e;
+    color: #fff;
 }
+
+.form-check-label {
+    color: #d4b89a;
+    font-size: 1.1rem;
+}
+
+.form-check-input {
+    width: 18px;
+    height: 18px;
+}
+
 @media (max-width: 576px) {
     .login-container {
-        width: 92%;
-        padding: 24px 20px;
-    }
-    .logo {
-        font-size: 45px;
+        padding: 40px 24px;
     }
     h2 {
-        font-size: 1.3rem;
+        font-size: 1.8rem;
     }
-}
-
-.login-container h2 {
-    font-size: 3rem;
-}
-
-.login-container .subtitle {
-    font-size: 1.6rem;
-}
-
-.login-container .form-label {
-    font-size: 1.3rem;
-}
-
-.login-container .form-control {
-    font-size: 1.3rem;
-    padding: 18px;
-}
-
-.login-container .btn-coffee {
-    font-size: 1.6rem;
-    padding: 18px;
 }
