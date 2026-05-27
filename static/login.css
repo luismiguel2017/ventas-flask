@@ -1,25 +1,33 @@
-body {
-    background: url('https://i.ytimg.com/vi/Ew0cCLyGsgQ/hq720.jpg') no-repeat center center fixed;
+/* Fondo solo para el login */
+.login-body {
+    background: url("{{ url_for('static', filename='cafe.jpeg') }}") no-repeat center center fixed;
     background-size: cover;
     font-family: 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
+/* Contenedor del formulario */
 .login-container {
     max-width: 400px;
-    margin: 100px auto;
-    background: rgba(255, 248, 240, 0.95);
+    margin: auto;
+    background: rgba(255, 248, 240, 0.95); /* beige cálido */
     padding: 30px;
     border-radius: 12px;
     box-shadow: 0px 6px 15px rgba(0,0,0,0.4);
     text-align: center;
 }
 
+/* Logo estilo café */
 .logo {
     font-size: 60px;
     margin-bottom: 10px;
     color: #6f4e37; /* tono café */
 }
 
+/* Títulos */
 h2 {
     color: #4b2e2e;
     font-weight: bold;
@@ -31,16 +39,21 @@ h2 {
     margin-bottom: 20px;
 }
 
+/* Labels */
 .form-label {
     color: #4b2e2e;
     font-weight: 500;
 }
 
+/* Botón estilo café */
 .btn-coffee {
     background-color: #6f4e37;
     color: #fff;
     border: none;
     font-weight: bold;
+    width: 100%;
+    padding: 12px;
+    border-radius: 6px;
 }
 
 .btn-coffee:hover {
