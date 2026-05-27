@@ -74,6 +74,54 @@ td {
     text-align: center;
 }
 
+/* Secciones ocultas/visibles */
+.seccion {
+    display: none;
+}
+
+.seccion.activa {
+    display: block;
+}
+
+/* Botones de pestañas */
+.tab {
+    font-weight: bold;
+    border-radius: 6px;
+    padding: 10px 20px;
+}
+
+.tab.activo {
+    background-color: #6f4e37; /* marrón café */
+    color: #fff;
+    border-color: #6f4e37;
+}
+
+/* Botones de acción */
+.btn-success.guardar {
+    background-color: #6f4e37;
+    border: none;
+}
+
+.btn-success.guardar:hover {
+    background-color: #4b2e2e;
+}
+
+.btn-warning.confirmar {
+    background-color: #d2b48c; /* beige tostado */
+    color: #4b2e2e;
+    border: none;
+}
+
+.btn-warning.confirmar:hover {
+    background-color: #c19a6b;
+}
+
+/* Campo de búsqueda */
+#buscar {
+    border: 2px solid #d2b48c;
+    border-radius: 6px;
+}
+
 /* Ajustes para pantallas pequeñas */
 @media (max-width: 576px) {
     h2 {
