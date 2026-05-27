@@ -1,0 +1,48 @@
+body {
+    background: url('https://i.ytimg.com/vi/Ew0cCLyGsgQ/hq720.jpg') no-repeat center center fixed;
+    background-size: cover;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.login-container {
+    max-width: 400px;
+    margin: 100px auto;
+    background: rgba(255, 248, 240, 0.95);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0px 6px 15px rgba(0,0,0,0.4);
+    text-align: center;
+}
+
+.logo {
+    font-size: 60px;
+    margin-bottom: 10px;
+    color: #6f4e37; /* tono café */
+}
+
+h2 {
+    color: #4b2e2e;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: #7a5c5c;
+    margin-bottom: 20px;
+}
+
+.form-label {
+    color: #4b2e2e;
+    font-weight: 500;
+}
+
+.btn-coffee {
+    background-color: #6f4e37;
+    color: #fff;
+    border: none;
+    font-weight: bold;
+}
+
+.btn-coffee:hover {
+    background-color: #4b2e2e;
+}

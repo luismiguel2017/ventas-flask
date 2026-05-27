@@ -1,79 +1,92 @@
+/* Fuente y fondo */
 body {
-  font-family: 'Segoe UI', Arial, sans-serif;
-  background-color: #f4f6f9;
-  margin: 0;
-  padding: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: url('https://i.ytimg.com/vi/Ew0cCLyGsgQ/hq720.jpg') no-repeat center center fixed;
+    background-size: cover;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
 }
 
-.container {
-  max-width: 500px;
+/* Contenedor central */
+.container, .login-container {
+    max-width: 600px;
+    margin: 80px auto;
+    background: rgba(255, 248, 240, 0.95); /* beige cálido */
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0px 6px 15px rgba(0,0,0,0.4);
 }
 
-h2 {
-  font-weight: 600;
+/* Títulos y subtítulos */
+h2, h4 {
+    color: #4b2e2e; /* marrón oscuro */
+    font-weight: bold;
+    text-align: center;
 }
 
-.seccion {
-  display: none;
+p, label, th, td {
+    color: #4b2e2e;
 }
 
-.seccion.activa {
-  display: block;
-}
-
+/* Inputs y botones */
 input, button {
-  border-radius: 6px;
+    border-radius: 6px;
+    font-size: 1rem;
+    padding: 12px;
 }
 
-button {
-  font-size: 1rem;
-  padding: 12px;
+/* Botón estilo café */
+.btn-coffee {
+    background-color: #6f4e37;
+    color: #fff;
+    border: none;
+    font-weight: bold;
+    border-radius: 6px;
+    padding: 12px;
+    width: 100%;
 }
 
-#buscar {
-  margin-bottom: 15px;
+.btn-coffee:hover {
+    background-color: #4b2e2e;
 }
 
+/* Tabla de productos */
 table {
-  font-size: 0.95rem;
+    width: 100%;
+    margin-top: 20px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 8px;
+    font-size: 0.95rem;
+}
+
+thead {
+    background-color: #d2b48c; /* beige tostado */
+    color: #4b2e2e;
 }
 
 th {
-  font-weight: 600;
+    font-weight: 600;
+    text-align: center;
 }
 
-.popup-pequeno {
-  width: 300px !important;
-  font-size: 14px;
+td {
+    text-align: center;
 }
 
-/* 📱 Ajustes para pantallas pequeñas */
+/* Ajustes para pantallas pequeñas */
 @media (max-width: 576px) {
-  h2 {
-    font-size: 1.4rem;
-  }
-  h4 {
-    font-size: 1.2rem;
-  }
-  input, button {
-    font-size: 1rem;
-    padding: 12px;
-  }
-  table {
-    font-size: 0.85rem;
-  }
-}
-
-.tab.activo {
-  background-color: #0d6efd;
-  color: white;
-  border-color: #0d6efd;
-}
-
-body {
-  font-family: 'Segoe UI', Arial, sans-serif;
-  background: linear-gradient(160deg, #2b2b2b 0%, #3a3a3a 35%, #1b2a4a 70%, #0d1b2a 100%);
-  min-height: 100vh;
-  margin: 0;
-  padding: 0;
+    h2 {
+        font-size: 1.4rem;
+    }
+    h4 {
+        font-size: 1.2rem;
+    }
+    input, button {
+        font-size: 1rem;
+        padding: 10px;
+    }
+    table {
+        font-size: 0.85rem;
+    }
 }

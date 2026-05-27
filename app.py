@@ -1,8 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session
 import psycopg2
 import os
+from login import login_bp   # Importar el Blueprint de login
 
 app = Flask(__name__)
+app.secret_key = "clave_secreta_segura"  # Necesario para manejar sesiones
 
 # Conexión a PostgreSQL usando variables de entorno
 def get_conn():
@@ -15,14 +17,23 @@ def get_conn():
         options='-c client_encoding=UTF8'
     )
 
-# Página principal
+# Registrar el Blueprint de login
+app.register_blueprint(login_bp)
+
+# Página principal (dashboard protegido)
 @app.route("/")
 def index():
-    return render_template("index.html")
+    if "usuario" in session:
+        return render_template("index.html", usuario=session["usuario"], rol=session.get("rol"))
+    else:
+        return redirect(url_for("login.login"))  # Redirige al login si no hay sesión
 
-# Registrar producto
+# Registrar producto (solo si hay sesión)
 @app.route("/registrar", methods=["POST"])
 def registrar():
+    if "usuario" not in session:
+        return redirect(url_for("login.login"))
+
     nombre = request.form["nombre"]
     precio = request.form["precio"]
 
@@ -38,6 +49,9 @@ def registrar():
 # Listar productos (incluye id)
 @app.route("/listar_productos")
 def listar_productos():
+    if "usuario" not in session:
+        return redirect(url_for("login.login"))
+
     conn = get_conn()
     cursor = conn.cursor()
     cursor.execute("SELECT nombre, precio, id FROM productos ORDER BY id DESC;")
@@ -49,6 +63,9 @@ def listar_productos():
 # Registrar venta
 @app.route("/registrar_venta", methods=["POST"])
 def registrar_venta():
+    if "usuario" not in session:
+        return redirect(url_for("login.login"))
+
     productos = request.json.get("productos", [])
 
     conn = get_conn()
