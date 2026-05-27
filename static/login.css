@@ -73,3 +73,6 @@ h2 {
         line-height: 46px;
     }
 }
+.row.min-vh-100 {
+    padding: 20px 0;
+}
