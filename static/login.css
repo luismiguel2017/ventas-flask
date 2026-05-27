@@ -66,23 +66,23 @@ h2 {
 }
 
 .login-container h2 {
-    font-size: 2rem;
+    font-size: 3rem;
 }
 
 .login-container .subtitle {
-    font-size: 1.2rem;
+    font-size: 1.6rem;
 }
 
 .login-container .form-label {
-    font-size: 1.1rem;
+    font-size: 1.3rem;
 }
 
 .login-container .form-control {
-    font-size: 1.1rem;
-    padding: 14px;
+    font-size: 1.3rem;
+    padding: 18px;
 }
 
 .login-container .btn-coffee {
-    font-size: 1.2rem;
-    padding: 14px;
+    font-size: 1.6rem;
+    padding: 18px;
 }
