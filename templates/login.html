@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema Ventas Cafetería Walter - Login</title>
     <!-- Poppins Font -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
@@ -9,54 +10,55 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <!-- CSS personalizado -->
     <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
-<style>
-    .login-body {
-        background: url("{{ url_for('static', filename='cafe.jpeg') }}") no-repeat center center fixed !important;
-        background-size: cover !important;
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-        min-height: 100vh !important;
-        padding: 20px !important;
-        box-sizing: border-box !important;
-    }
-    .login-container {
-        width: 95% !important;
-        max-width: 480px !important;
-        padding: 55px 40px !important;
-        margin: 0 auto !important;
-        float: none !important;
-        text-align: center !important;
-    }
-    .logo {
-        text-align: center !important;
-        display: block !important;
-        width: 100% !important;
-        font-size: 60px !important;
-    }
-</style>
+    <style>
+        body {
+            background: url("{{ url_for('static', filename='cafe.jpeg') }}") no-repeat center center fixed !important;
+            background-size: cover !important;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        .overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.45);
+            backdrop-filter: blur(2px);
+            z-index: 0;
+        }
+        .container {
+            position: relative;
+            z-index: 1;
+        }
+    </style>
 </head>
-<body class="login-body">
+<body>
     <div class="overlay"></div>
-    <div class="login-container">
-        <div class="logo">☕</div>
-        <h2>Sistema Ventas<br>Cafetería Walter</h2>
-        <p class="subtitle">Inicia sesión para continuar</p>
-        <form method="POST" action="/login">
-            <div class="mb-3">
-                <label for="usuario" class="form-label">Usuario</label>
-                <input type="text" class="form-control" id="usuario" name="usuario" placeholder="Ingresa tu usuario" required>
+    <div class="container">
+        <div class="row justify-content-center align-items-center min-vh-100">
+            <div class="col-11 col-sm-8 col-md-6 col-lg-5">
+                <div class="login-container">
+                    <div class="logo">☕</div>
+                    <h2>Sistema Ventas<br>Cafetería Walter</h2>
+                    <p class="subtitle">Inicia sesión para continuar</p>
+                    <form method="POST" action="/login">
+                        <div class="mb-3">
+                            <label for="usuario" class="form-label">Usuario</label>
+                            <input type="text" class="form-control" id="usuario" name="usuario" placeholder="Ingresa tu usuario" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="contrasena" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="contrasena" name="contrasena" placeholder="Ingresa tu contraseña" required>
+                        </div>
+                        <button type="submit" class="btn btn-coffee w-100">Iniciar Sesión</button>
+                        <div class="form-check mt-3">
+                            <input type="checkbox" class="form-check-input" id="recordar">
+                            <label class="form-check-label" for="recordar">Recuérdame</label>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div class="mb-3">
-                <label for="contrasena" class="form-label">Contraseña</label>
-                <input type="password" class="form-control" id="contrasena" name="contrasena" placeholder="Ingresa tu contraseña" required>
-            </div>
-            <button type="submit" class="btn btn-coffee w-100">Iniciar Sesión</button>
-            <div class="form-check">
-                <input type="checkbox" class="form-check-input" id="recordar">
-                <label class="form-check-label" for="recordar">Recuérdame</label>
-            </div>
-        </form>
+        </div>
     </div>
 </body>
 </html>
