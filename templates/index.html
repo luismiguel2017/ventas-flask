@@ -19,9 +19,15 @@
 
   <!-- NAVBAR -->
   <nav class="navbar-custom">
-    <div class="navbar-brand-custom">
-      <i class="bi bi-cup-hot-fill"></i>
-      <span>Sistema Ventas Cafetería Walter</span>
+    <div class="navbar-left">
+      <!-- Menú hamburguesa -->
+      <button class="hamburger-btn" id="menuToggle">
+        <i class="bi bi-list"></i>
+      </button>
+      <div class="navbar-brand-custom">
+        <i class="bi bi-cup-hot-fill"></i>
+        <span>Sistema Ventas Cafetería Walter</span>
+      </div>
     </div>
     <div class="navbar-user dropdown">
       <button class="user-btn dropdown-toggle" data-bs-toggle="dropdown">
@@ -38,21 +44,61 @@
     </div>
   </nav>
 
+  <!-- MENÚ LATERAL -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <i class="bi bi-cup-hot-fill"></i>
+      <span>Menú</span>
+      <button class="sidebar-close" id="sidebarClose">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <ul class="sidebar-menu">
+      <li>
+        <a href="#" onclick="mostrarSeccion('inicio', null); cerrarMenu()">
+          <i class="bi bi-house-fill"></i> Inicio
+        </a>
+      </li>
+      <li>
+        <a href="#" onclick="mostrarSeccion('venta', null); cerrarMenu()">
+          <i class="bi bi-cart3"></i> Realizar Venta
+        </a>
+      </li>
+      <li>
+        <a href="#" onclick="mostrarSeccion('producto', null); cerrarMenu()">
+          <i class="bi bi-plus-circle"></i> Ingresar Producto
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- OVERLAY MENÚ -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="cerrarMenu()"></div>
+
   <!-- CONTENIDO -->
   <div class="dashboard-container">
 
-    <!-- Botones de pestañas -->
-    <div class="tab-buttons mb-4">
-      <button class="tab-btn active" onclick="mostrarSeccion('venta', this)">
-        <i class="bi bi-cart3 me-2"></i>Realizar Venta
-      </button>
-      <button class="tab-btn" onclick="mostrarSeccion('producto', this)">
-        <i class="bi bi-plus-circle me-2"></i>Ingresar Producto
-      </button>
+    <!-- Sección Inicio -->
+    <div id="inicio" class="seccion activa">
+      <div class="welcome-wrap">
+        <i class="bi bi-cup-hot-fill welcome-icon"></i>
+        <h2 class="welcome-title">Bienvenido al Sistema de Ventas</h2>
+        <p class="welcome-sub">Cafetería Walter</p>
+        <div class="welcome-cards">
+          <div class="welcome-card" onclick="mostrarSeccion('venta', null)">
+            <i class="bi bi-cart3"></i>
+            <span>Realizar Venta</span>
+          </div>
+          <div class="welcome-card" onclick="mostrarSeccion('producto', null)">
+            <i class="bi bi-plus-circle"></i>
+            <span>Ingresar Producto</span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Sección Realizar Venta -->
-    <div id="venta" class="seccion activa">
+    <div id="venta" class="seccion">
       <h4 class="section-title">Seleccionar Productos para la Venta</h4>
 
       <div class="search-wrap mb-3">
@@ -104,15 +150,21 @@
   <script>
     function mostrarSeccion(id, btn) {
       document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activa'));
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       document.getElementById(id).classList.add('activa');
-      if (btn) btn.classList.add('active');
       if (id === 'venta') cargarProductos();
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
-      cargarProductos();
+    function cerrarMenu() {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sidebarOverlay').classList.remove('open');
+    }
+
+    document.getElementById('menuToggle').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('sidebarOverlay').classList.toggle('open');
     });
+
+    document.getElementById('sidebarClose').addEventListener('click', cerrarMenu);
   </script>
 
 </body>
