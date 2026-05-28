@@ -20,7 +20,6 @@
   <!-- NAVBAR -->
   <nav class="navbar-custom">
     <div class="navbar-left">
-      <!-- Menú hamburguesa -->
       <button class="hamburger-btn" id="menuToggle">
         <i class="bi bi-list"></i>
       </button>
@@ -54,42 +53,35 @@
       </button>
     </div>
     <ul class="sidebar-menu">
-      <li>
-        <a href="#" onclick="mostrarSeccion('inicio', null); cerrarMenu()">
-          <i class="bi bi-house-fill"></i> Inicio
-        </a>
-      </li>
-      <li>
-        <a href="#" onclick="mostrarSeccion('venta', null); cerrarMenu()">
-          <i class="bi bi-cart3"></i> Realizar Venta
-        </a>
-      </li>
-      <li>
-        <a href="#" onclick="mostrarSeccion('producto', null); cerrarMenu()">
-          <i class="bi bi-plus-circle"></i> Ingresar Producto
-        </a>
-      </li>
+      <li><a href="#" onclick="mostrarSeccion('inicio'); cerrarMenu()">
+        <i class="bi bi-house-fill"></i> Inicio
+      </a></li>
+      <li><a href="#" onclick="mostrarSeccion('mesas'); cerrarMenu()">
+        <i class="bi bi-grid-3x3-gap-fill"></i> Mesas
+      </a></li>
+      <li><a href="#" onclick="mostrarSeccion('producto'); cerrarMenu()">
+        <i class="bi bi-plus-circle"></i> Ingresar Producto
+      </a></li>
     </ul>
   </div>
 
-  <!-- OVERLAY MENÚ -->
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="cerrarMenu()"></div>
 
   <!-- CONTENIDO -->
   <div class="dashboard-container">
 
-    <!-- Sección Inicio -->
+    <!-- Inicio -->
     <div id="inicio" class="seccion activa">
       <div class="welcome-wrap">
         <i class="bi bi-cup-hot-fill welcome-icon"></i>
         <h2 class="welcome-title">Bienvenido al Sistema de Ventas</h2>
         <p class="welcome-sub">Cafetería Walter</p>
         <div class="welcome-cards">
-          <div class="welcome-card" onclick="mostrarSeccion('venta', null)">
-            <i class="bi bi-cart3"></i>
-            <span>Realizar Venta</span>
+          <div class="welcome-card" onclick="mostrarSeccion('mesas')">
+            <i class="bi bi-grid-3x3-gap-fill"></i>
+            <span>Mesas</span>
           </div>
-          <div class="welcome-card" onclick="mostrarSeccion('producto', null)">
+          <div class="welcome-card" onclick="mostrarSeccion('producto')">
             <i class="bi bi-plus-circle"></i>
             <span>Ingresar Producto</span>
           </div>
@@ -97,35 +89,64 @@
       </div>
     </div>
 
-    <!-- Sección Realizar Venta -->
-    <div id="venta" class="seccion">
-      <h4 class="section-title">Seleccionar Productos para la Venta</h4>
+    <!-- Mesas -->
+    <div id="mesas" class="seccion">
 
-      <div class="search-wrap mb-3">
-        <i class="bi bi-search search-icon"></i>
-        <input type="text" id="buscar" class="search-input" placeholder="Buscar producto...">
+      <!-- Vista mesas -->
+      <div id="vista-mesas">
+        <h4 class="section-title">Mesas</h4>
+        <div class="mesas-grid" id="gridMesas"></div>
       </div>
 
-      <div class="table-responsive">
-        <table id="tablaProductos" class="table-custom">
-          <thead>
-            <tr>
-              <th>Producto</th>
-              <th>Precio (S/)</th>
-              <th>Cantidad</th>
-              <th>Seleccionar</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
+      <!-- Vista detalle mesa -->
+      <div id="vista-detalle" style="display:none">
+        <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1rem;">
+          <button class="btn-volver" onclick="volverMesas()">
+            <i class="bi bi-arrow-left"></i> Volver
+          </button>
+          <h4 class="section-title" id="detTitle" style="margin:0">Mesa 1</h4>
+        </div>
 
-      <button class="btn-confirm mt-4" onclick="confirmarVenta()">
-        <i class="bi bi-check-circle me-2"></i>Confirmar Venta
-      </button>
+        <div class="search-wrap mb-3">
+          <i class="bi bi-search search-icon"></i>
+          <input type="text" id="buscarMesa" class="search-input" placeholder="Buscar producto..." oninput="filtrarProdsMesa(this.value)">
+        </div>
+
+        <div class="table-responsive">
+          <table id="tablaProductosMesa" class="table-custom">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Precio (S/)</th>
+                <th>Cantidad</th>
+                <th>Seleccionar</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <button class="btn-agregar-mesa mt-3" onclick="agregarAMesa()">
+          <i class="bi bi-plus-circle me-2"></i>Agregar a Mesa
+        </button>
+
+        <!-- Pedido acumulado -->
+        <div class="pedido-wrap" id="pedidoWrap" style="display:none">
+          <div class="pedido-header">Pedido acumulado</div>
+          <div id="pedidoItems"></div>
+          <div class="pedido-total">
+            <span>Total</span>
+            <span id="pedidoTotal">S/ 0.00</span>
+          </div>
+          <button class="btn-confirm mt-3" onclick="confirmarVentaMesa()">
+            <i class="bi bi-check-circle me-2"></i>Confirmar Venta
+          </button>
+        </div>
+
+      </div>
     </div>
 
-    <!-- Sección Ingresar Producto -->
+    <!-- Ingresar Producto -->
     <div id="producto" class="seccion">
       <h4 class="section-title">Agregar Nuevo Producto</h4>
       <form action="/registrar" method="POST" onsubmit="return mostrarMensaje(event)">
@@ -148,10 +169,10 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="{{ url_for('static', filename='script.js') }}"></script>
   <script>
-    function mostrarSeccion(id, btn) {
+    function mostrarSeccion(id) {
       document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activa'));
       document.getElementById(id).classList.add('activa');
-      if (id === 'venta') cargarProductos();
+      if (id === 'mesas') cargarMesas();
     }
 
     function cerrarMenu() {
@@ -166,6 +187,5 @@
 
     document.getElementById('sidebarClose').addEventListener('click', cerrarMenu);
   </script>
-
 </body>
 </html>
