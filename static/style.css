@@ -202,6 +202,44 @@ body::after {
   cursor: pointer;
 }
 
+/* CANTIDAD CONTROLES */
+.qty-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.qty-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: 1px solid rgba(210,160,90,0.40);
+  background: rgba(255,255,255,0.08);
+  color: var(--cream);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.qty-btn:hover { background: rgba(200,136,58,0.35); border-color: var(--accent); }
+
+.qty-input {
+  width: 40px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(210,160,90,0.30);
+  border-radius: 6px;
+  color: var(--cream);
+  padding: 3px 4px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
 /* INPUTS FORMULARIO */
 .form-label-custom {
   display: block;
@@ -267,6 +305,8 @@ body::after {
   .dashboard-container { margin: 1rem; padding: 1.2rem; }
   .navbar-brand-custom span { display: none; }
   .table-custom th, .table-custom td { padding: 0.5rem 0.4rem; font-size: 0.85rem; }
+  .qty-btn { width: 28px; height: 28px; font-size: 1.1rem; }
+  .qty-input { width: 36px; }
 }
 
 @media (max-width: 400px) {

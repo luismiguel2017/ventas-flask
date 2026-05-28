@@ -1,3 +1,10 @@
+// Cambiar cantidad
+function cambiarCantidad(btn, delta) {
+  const input = btn.parentElement.querySelector('.qty-input');
+  const nuevo = Math.max(1, parseInt(input.value) + delta);
+  input.value = nuevo;
+}
+
 // Cargar productos desde Flask
 function cargarProductos() {
   fetch('/listar_productos')
@@ -18,7 +25,13 @@ function cargarProductos() {
         fila.innerHTML = `
           <td>${prod[0]}</td>
           <td>S/ ${parseFloat(prod[1]).toFixed(2)}</td>
-          <td><input type="number" min="1" value="1" style="width:65px;background:rgba(255,255,255,0.08);border:1px solid rgba(210,160,90,0.30);border-radius:6px;color:var(--cream);padding:4px 8px;text-align:center;"></td>
+          <td>
+            <div class="qty-wrap">
+              <button class="qty-btn" onclick="cambiarCantidad(this, -1)">−</button>
+              <input type="number" min="1" value="1" class="qty-input">
+              <button class="qty-btn" onclick="cambiarCantidad(this, 1)">+</button>
+            </div>
+          </td>
           <td><input type="checkbox" style="width:18px;height:18px;accent-color:var(--accent);cursor:pointer;"></td>
         `;
         tbody.appendChild(fila);
@@ -33,7 +46,6 @@ function cargarProductos() {
 // Filtro de búsqueda
 document.addEventListener('DOMContentLoaded', () => {
 
-  // Cargar productos al iniciar en sección venta
   cargarProductos();
 
   const buscar = document.getElementById('buscar');
@@ -47,7 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Confirmar venta
   const confirmarBtn = document.querySelector('.btn-confirm');
   if (confirmarBtn && document.getElementById('venta')) {
     confirmarBtn.addEventListener('click', confirmarVenta);
@@ -61,7 +72,7 @@ function confirmarVenta() {
 
   filas.forEach(fila => {
     const checkbox = fila.querySelector('input[type="checkbox"]');
-    const cantidadInput = fila.querySelector('input[type="number"]');
+    const cantidadInput = fila.querySelector('.qty-input');
     if (checkbox && checkbox.checked) {
       productos.push({
         id: fila.dataset.productoId,
@@ -97,7 +108,7 @@ function confirmarVenta() {
         confirmButtonColor: '#c8883a'
       }).then(() => {
         document.querySelectorAll('#tablaProductos input[type="checkbox"]').forEach(cb => cb.checked = false);
-        document.querySelectorAll('#tablaProductos input[type="number"]').forEach(inp => inp.value = 1);
+        document.querySelectorAll('#tablaProductos .qty-input').forEach(inp => inp.value = 1);
         const buscar = document.getElementById('buscar');
         if (buscar) {
           buscar.value = '';
