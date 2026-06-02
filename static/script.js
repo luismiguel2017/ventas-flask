@@ -185,5 +185,9 @@ function mostrarMensaje(event) {
 // INIT
 // =====================
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('menuToggle') && null;
+  // Cargar mesas al abrir la página
+  cargarMesas();
+  
+  // Actualizar cada 5 segundos (POLLING EN TIEMPO REAL)
+  setInterval(cargarMesas, 5000);
 });
