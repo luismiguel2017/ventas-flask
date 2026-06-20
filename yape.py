@@ -5,6 +5,7 @@ import os
 import pandas as pd
 import psycopg2
 from io import BytesIO
+from datetime import datetime
 from flask import Blueprint, render_template_string
 
 yape_bp = Blueprint('yape', __name__)
@@ -47,6 +48,14 @@ def importar_yape():
                     df.columns = ["Tipo", "Origen", "Destino", "Monto", "Mensaje", "Fecha"]
                     df = df[df["Tipo"] == "TE PAGÓ"]
                     df = df[["Tipo", "Origen", "Monto", "Fecha"]]
+
+                    # Convertir fecha de "DD/MM/YYYY HH:MM:SS" a datetime real
+                    def parsear_fecha(valor):
+                        if isinstance(valor, str):
+                            return datetime.strptime(valor, "%d/%m/%Y %H:%M:%S")
+                        return valor  # ya es datetime (pandas a veces lo detecta solo)
+
+                    df["Fecha"] = df["Fecha"].apply(parsear_fecha)
 
                     conn = get_conn()
                     cur = conn.cursor()
