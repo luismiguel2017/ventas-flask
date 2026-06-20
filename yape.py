@@ -24,7 +24,7 @@ def get_conn():
 def importar_yape():
     try:
         mail = imaplib.IMAP4_SSL("imap.gmail.com", 993)
-        mail.login("luis.adriano.ga@gmail.com", os.getenv("afrp ccrr qapa wodz"))
+        mail.login("luis.adriano.ga@gmail.com", os.getenv("GMAIL_PASS"))
         mail.select("inbox")
 
         status, mensajes = mail.search(None, '(FROM "luis_007_ga@hotmail.com" SUBJECT "Historial de Movimientos")')
@@ -281,9 +281,9 @@ HTML_TEMPLATE = """
             </tr>
           </thead>
           <tbody id="tablabody">
-            {% for i, f in enumerate(filas) %}
+            {% for f in filas %}
             <tr>
-              <td style="color:var(--muted);font-size:.75rem">{{ i+1 }}</td>
+              <td style="color:var(--muted);font-size:.75rem">{{ loop.index }}</td>
               <td><span style="background:rgba(76,175,125,.15);color:var(--green);padding:.15rem .5rem;border-radius:20px;font-size:.7rem;font-weight:700;">{{ f[0] }}</span></td>
               <td><strong>{{ f[1] }}</strong></td>
               <td class="monto">S/ {{ "%.2f"|format(f[2]) }}</td>
