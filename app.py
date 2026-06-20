@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify, s
 import psycopg2
 import os
 from login import login_bp   # Importar el Blueprint de login
+from yape import yape_bp
 
 app = Flask(__name__)
 app.secret_key = "clave_secreta_segura"  # Necesario para manejar sesiones
@@ -19,7 +20,7 @@ def get_conn():
 
 # Registrar el Blueprint de login
 app.register_blueprint(login_bp)
-
+app.register_blueprint(yape_bp)
 # Página principal (dashboard protegido)
 @app.route("/")
 def index():
