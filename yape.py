@@ -263,10 +263,6 @@ HTML_TEMPLATE = """
         <div class="kpi-label">Pagos hoy</div>
         <div class="kpi-value yape-color">{{ cantidad_hoy }}</div>
       </div>
-      <div class="kpi">
-        <div class="kpi-label">Total histórico</div>
-        <div class="kpi-value">S/ {{ "%.2f"|format(total_general) }}</div>
-      </div>
     </div>
 
     <!-- TABLA -->
@@ -282,7 +278,6 @@ HTML_TEMPLATE = """
         <table>
           <thead>
             <tr>
-              <th>#</th>
               <th>Tipo</th>
               <th>Origen</th>
               <th>Monto</th>
@@ -292,7 +287,6 @@ HTML_TEMPLATE = """
           <tbody id="tablabody">
             {% for f in filas %}
             <tr>
-              <td style="color:var(--muted);font-size:.75rem">{{ loop.index }}</td>
               <td><span style="background:rgba(76,175,125,.15);color:var(--green);padding:.15rem .5rem;border-radius:20px;font-size:.7rem;font-weight:700;">{{ f[0] }}</span></td>
               <td><strong>{{ f[1] }}</strong></td>
               <td class="monto">S/ {{ "%.2f"|format(f[2]) }}</td>
@@ -300,7 +294,7 @@ HTML_TEMPLATE = """
             </tr>
             {% endfor %}
             {% if not filas %}
-            <tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--muted);">Sin datos — haz clic en "Importar desde Gmail"</td></tr>
+            <tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--muted);">Sin datos — haz clic en "Importar desde Gmail"</td></tr>
             {% endif %}
           </tbody>
         </table>
