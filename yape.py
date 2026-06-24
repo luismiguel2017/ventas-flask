@@ -124,7 +124,8 @@ def reporte_yape():
         return render_template_string(HTML_TEMPLATE,
                                       filas=filas,
                                       total_hoy=total_hoy,
-                                      importados=importados)
+                                      importados=importados,
+                                     fecha_filtro=fecha_filtro)
     except Exception as e:
         return f"<h3>❌ Error: {str(e)}</h3>"
 
