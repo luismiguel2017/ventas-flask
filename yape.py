@@ -104,11 +104,11 @@ def reporte_yape():
         total_general = cur.fetchone()[0]
 
         # Total hoy
-        cur.execute("SELECT COALESCE(SUM(monto),0) FROM yape_pagos WHERE DATE(fecha) = CURRENT_DATE")
+        cur.execute("SELECT COALESCE(SUM(monto),0) FROM yape_pagos WHERE DATE(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Lima') = CURRENT_DATE AT TIME ZONE 'America/Lima'")
         total_hoy = cur.fetchone()[0]
 
         # Cantidad hoy
-        cur.execute("SELECT COUNT(*) FROM yape_pagos WHERE DATE(fecha) = CURRENT_DATE")
+        cur.execute("SELECT COUNT(*) FROM yape_pagos WHERE DATE(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Lima') = CURRENT_DATE AT TIME ZONE 'America/Lima'")
         cantidad_hoy = cur.fetchone()[0]
 
         # Todos los registros
