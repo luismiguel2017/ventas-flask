@@ -111,11 +111,11 @@ def reporte_yape():
         #cantidad_hoy = cur.fetchone()[0]
 
         # Registros del día filtrado
-        #cur.execute("""
-        #    SELECT tipo, origen, monto, fecha FROM yape_pagos
-        #    WHERE DATE(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Lima') = %s
-        #    ORDER BY fecha DESC
-        #""", (fecha_filtro,))
+        cur.execute("""
+            SELECT tipo, origen, monto, fecha FROM yape_pagos
+            WHERE DATE(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Lima') = %s
+            ORDER BY fecha DESC
+        """, (fecha_filtro,))
         filas = cur.fetchall()
 
         cur.close()
