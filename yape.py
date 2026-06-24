@@ -104,18 +104,18 @@ def reporte_yape():
         total_hoy = cur.fetchone()[0]
 
         # Cantidad del día filtrado
-        cur.execute("""
-            SELECT COUNT(*) FROM yape_pagos
-            WHERE DATE(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Lima') = %s
-        """, (fecha_filtro,))
-        cantidad_hoy = cur.fetchone()[0]
+        #cur.execute("""
+        #    SELECT COUNT(*) FROM yape_pagos
+        #    WHERE DATE(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Lima') = %s
+        #""", (fecha_filtro,))
+        #cantidad_hoy = cur.fetchone()[0]
 
         # Registros del día filtrado
-        cur.execute("""
-            SELECT tipo, origen, monto, fecha FROM yape_pagos
-            WHERE DATE(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Lima') = %s
-            ORDER BY fecha DESC
-        """, (fecha_filtro,))
+        #cur.execute("""
+        #    SELECT tipo, origen, monto, fecha FROM yape_pagos
+        #    WHERE DATE(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Lima') = %s
+        #    ORDER BY fecha DESC
+        #""", (fecha_filtro,))
         filas = cur.fetchall()
 
         cur.close()
@@ -124,9 +124,7 @@ def reporte_yape():
         return render_template_string(HTML_TEMPLATE,
                                       filas=filas,
                                       total_hoy=total_hoy,
-                                      cantidad_hoy=cantidad_hoy,
-                                      importados=importados,
-                                      fecha_filtro=fecha_filtro)
+                                      importados=importados)
     except Exception as e:
         return f"<h3>❌ Error: {str(e)}</h3>"
 
@@ -265,14 +263,6 @@ HTML_TEMPLATE = """
       <div class="kpi">
         <div class="kpi-label">Total del día</div>
         <div class="kpi-value green">S/ {{ "%.2f"|format(total_hoy) }}</div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-label">Pagos del día</div>
-        <div class="kpi-value yape-color">{{ cantidad_hoy }}</div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-label">Fecha consultada</div>
-        <div class="kpi-value" style="font-size:1rem;color:var(--accent);">{{ fecha_filtro }}</div>
       </div>
     </div>
 
