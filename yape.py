@@ -5,8 +5,8 @@ import os
 import pandas as pd
 import psycopg2
 from io import BytesIO
-from datetime import datetime
-from flask import Blueprint, render_template_string
+from datetime import datetime, date
+from flask import Blueprint, render_template_string, request, redirect
 
 yape_bp = Blueprint('yape', __name__)
 
@@ -49,11 +49,10 @@ def importar_yape():
                     df = df[df["Tipo"] == "TE PAGÓ"]
                     df = df[["Tipo", "Origen", "Monto", "Fecha"]]
 
-                    # Convertir fecha de "DD/MM/YYYY HH:MM:SS" a datetime real
                     def parsear_fecha(valor):
                         if isinstance(valor, str):
                             return datetime.strptime(valor, "%d/%m/%Y %H:%M:%S")
-                        return valor  # ya es datetime (pandas a veces lo detecta solo)
+                        return valor
 
                     df["Fecha"] = df["Fecha"].apply(parsear_fecha)
 
@@ -77,8 +76,6 @@ def importar_yape():
                     cur.close()
                     conn.close()
 
-                    # Redirigir al reporte con mensaje de éxito
-                    from flask import redirect, url_for
                     return redirect(f"/yape?importados={insertados}")
 
         return "<h3>⚠️ No se encontró adjunto Excel en el correo.</h3>"
@@ -92,27 +89,33 @@ def importar_yape():
 # =====================
 @yape_bp.route("/yape")
 def reporte_yape():
-    from flask import request
     importados = request.args.get("importados", None)
+    fecha_filtro = request.args.get("fecha", datetime.now().strftime("%Y-%m-%d"))
 
     try:
         conn = get_conn()
         cur = conn.cursor()
 
-        # Total general
-        cur.execute("SELECT COALESCE(SUM(monto),0) FROM yape_pagos")
-        total_general = cur.fetchone()[0]
-
-        # Total hoy
-        cur.execute("SELECT COALESCE(SUM(monto),0) FROM yape_pagos WHERE DATE(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Lima') = CURRENT_DATE AT TIME ZONE 'America/Lima'")
+        # Total del día filtrado (con zona horaria Lima)
+        cur.execute("""
+            SELECT COALESCE(SUM(monto),0) FROM yape_pagos
+            WHERE DATE(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Lima') = %s
+        """, (fecha_filtro,))
         total_hoy = cur.fetchone()[0]
 
-        # Cantidad hoy
-        cur.execute("SELECT COUNT(*) FROM yape_pagos WHERE DATE(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Lima') = CURRENT_DATE AT TIME ZONE 'America/Lima'")
+        # Cantidad del día filtrado
+        cur.execute("""
+            SELECT COUNT(*) FROM yape_pagos
+            WHERE DATE(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Lima') = %s
+        """, (fecha_filtro,))
         cantidad_hoy = cur.fetchone()[0]
 
-        # Todos los registros
-        cur.execute("SELECT tipo, origen, monto, fecha FROM yape_pagos ORDER BY fecha DESC")
+        # Registros del día filtrado
+        cur.execute("""
+            SELECT tipo, origen, monto, fecha FROM yape_pagos
+            WHERE DATE(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Lima') = %s
+            ORDER BY fecha DESC
+        """, (fecha_filtro,))
         filas = cur.fetchall()
 
         cur.close()
@@ -120,10 +123,10 @@ def reporte_yape():
 
         return render_template_string(HTML_TEMPLATE,
                                       filas=filas,
-                                      total_general=total_general,
                                       total_hoy=total_hoy,
                                       cantidad_hoy=cantidad_hoy,
-                                      importados=importados)
+                                      importados=importados,
+                                      fecha_filtro=fecha_filtro)
     except Exception as e:
         return f"<h3>❌ Error: {str(e)}</h3>"
 
@@ -147,7 +150,6 @@ HTML_TEMPLATE = """
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--cream);min-height:100vh;display:flex;}
 
-    /* SIDEBAR */
     .sidebar{width:240px;min-height:100vh;background:var(--sidebar-bg);border-right:1px solid var(--card-border);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100;transition:transform .3s;}
     .sidebar-header{padding:1.4rem 1.2rem;border-bottom:1px solid var(--card-border);display:flex;align-items:center;gap:.7rem;}
     .cup-icon{width:36px;height:36px;background:linear-gradient(145deg,#c8883a,#7c4a1a);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;color:#fff;flex-shrink:0;}
@@ -158,14 +160,11 @@ HTML_TEMPLATE = """
     .nav-item.active{color:var(--accent);border-left-color:var(--accent);background:rgba(200,136,58,.12);}
     .nav-item i{font-size:1.1rem;width:20px;text-align:center;}
 
-    /* MAIN */
     .main{margin-left:240px;flex:1;display:flex;flex-direction:column;}
     .topbar{background:var(--topbar-bg);border-bottom:1px solid var(--card-border);padding:.85rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
     .topbar h1{font-family:'Playfair Display',serif;font-size:1.25rem;margin:0;}
     .user-pill{display:flex;align-items:center;gap:.5rem;background:rgba(200,136,58,.12);border:1px solid var(--card-border);border-radius:20px;padding:.35rem .9rem;font-size:.85rem;}
     .menu-toggle{display:none;background:none;border:none;color:var(--cream);font-size:1.3rem;cursor:pointer;}
-
-    /* CONTENT */
     .content{padding:1.5rem;flex:1;overflow-y:auto;}
 
     /* KPIs */
@@ -176,14 +175,20 @@ HTML_TEMPLATE = """
     .kpi-value.yape-color{color:var(--yape2);}
     .kpi-value.green{color:var(--green);}
 
+    /* FILTRO FECHA */
+    .filtro-wrap{background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;padding:1rem 1.2rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+    .filtro-label{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
+    .date-inp{background:rgba(255,255,255,.05);border:1px solid var(--card-border);border-radius:7px;color:var(--cream);font-size:.85rem;padding:.4rem .8rem;outline:none;cursor:pointer;}
+    .date-inp:focus{border-color:var(--accent);}
+    .btn-filtrar{background:linear-gradient(135deg,#d49040,#a0601a);border:none;border-radius:7px;color:#fff;font-family:'Lato',sans-serif;font-size:.82rem;font-weight:700;padding:.4rem .9rem;cursor:pointer;}
+    .btn-hoy{background:rgba(200,136,58,.15);border:1px solid rgba(200,136,58,.3);border-radius:7px;color:var(--accent);font-family:'Lato',sans-serif;font-size:.82rem;font-weight:700;padding:.4rem .9rem;cursor:pointer;text-decoration:none;}
+
     /* TABLA */
     .tabla-section{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;overflow:hidden;}
     .tabla-hdr{padding:1rem 1.2rem;border-bottom:1px solid var(--card-border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.8rem;}
     .tabla-title{font-size:.88rem;font-weight:700;color:var(--cream);}
-
     .btn-importar{background:linear-gradient(135deg,#6b21a8,#9333ea);border:none;border-radius:8px;color:#fff;font-family:'Lato',sans-serif;font-size:.85rem;font-weight:700;padding:.5rem 1.1rem;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;text-decoration:none;transition:opacity .2s;}
     .btn-importar:hover{opacity:.85;color:#fff;}
-
     .search-inp{background:rgba(255,255,255,.05);border:1px solid var(--card-border);border-radius:7px;color:var(--cream);font-size:.8rem;padding:.35rem .8rem;outline:none;width:180px;}
     .search-inp:focus{border-color:var(--accent);}
 
@@ -194,11 +199,7 @@ HTML_TEMPLATE = """
     tbody tr:hover{background:rgba(200,136,58,.04);}
     tbody tr:last-child{border:none;}
     tbody td{padding:.75rem 1rem;color:var(--cream);}
-
     .monto{color:var(--green);font-weight:700;}
-
-    /* TOAST */
-    .toast-c{position:fixed;bottom:1.5rem;right:1.5rem;z-index:300;background:#1e1208;border-radius:10px;padding:.8rem 1.2rem;display:flex;align-items:center;gap:.6rem;font-size:.88rem;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.5);border:1px solid var(--green);color:var(--green);}
 
     .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99;}
     .overlay.show{display:block;}
@@ -217,7 +218,6 @@ HTML_TEMPLATE = """
 </head>
 <body>
 
-<!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-header">
     <div class="cup-icon"><i class="bi bi-cup-hot-fill"></i></div>
@@ -234,7 +234,6 @@ HTML_TEMPLATE = """
 </aside>
 <div class="overlay" id="overlay"></div>
 
-<!-- Main -->
 <div class="main">
   <header class="topbar">
     <div style="display:flex;align-items:center;gap:1rem;">
@@ -253,15 +252,27 @@ HTML_TEMPLATE = """
     </div>
     {% endif %}
 
+    <!-- FILTRO POR FECHA -->
+    <div class="filtro-wrap">
+      <span class="filtro-label"><i class="bi bi-calendar3 me-1"></i> Ver pagos del día:</span>
+      <input class="date-inp" type="date" id="fechaInput" value="{{ fecha_filtro }}"/>
+      <button class="btn-filtrar" onclick="filtrarFecha()"><i class="bi bi-search me-1"></i> Buscar</button>
+      <a class="btn-hoy" href="/yape"><i class="bi bi-clock me-1"></i> Hoy</a>
+    </div>
+
     <!-- KPIs -->
     <div class="kpis">
       <div class="kpi">
-        <div class="kpi-label">Total recibido hoy</div>
+        <div class="kpi-label">Total del día</div>
         <div class="kpi-value green">S/ {{ "%.2f"|format(total_hoy) }}</div>
       </div>
       <div class="kpi">
-        <div class="kpi-label">Pagos hoy</div>
+        <div class="kpi-label">Pagos del día</div>
         <div class="kpi-value yape-color">{{ cantidad_hoy }}</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Fecha consultada</div>
+        <div class="kpi-value" style="font-size:1rem;color:var(--accent);">{{ fecha_filtro }}</div>
       </div>
     </div>
 
@@ -294,7 +305,7 @@ HTML_TEMPLATE = """
             </tr>
             {% endfor %}
             {% if not filas %}
-            <tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--muted);">Sin datos — haz clic en "Importar desde Gmail"</td></tr>
+            <tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--muted);">Sin pagos para esta fecha</td></tr>
             {% endif %}
           </tbody>
         </table>
@@ -305,11 +316,19 @@ HTML_TEMPLATE = """
 </div>
 
 <script>
+function filtrarFecha() {
+  const fecha = document.getElementById('fechaInput').value;
+  if (fecha) window.location.href = '/yape?fecha=' + fecha;
+}
+
+document.getElementById('fechaInput').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') filtrarFecha();
+});
+
 function filtrar(q) {
   const f = q.toLowerCase();
   document.querySelectorAll('#tablabody tr').forEach(tr => {
-    const txt = tr.textContent.toLowerCase();
-    tr.style.display = txt.includes(f) ? '' : 'none';
+    tr.style.display = tr.textContent.toLowerCase().includes(f) ? '' : 'none';
   });
 }
 
