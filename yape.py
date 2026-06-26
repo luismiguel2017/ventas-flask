@@ -5,8 +5,8 @@ import os
 import pandas as pd
 import psycopg2
 from io import BytesIO
-from datetime import datetime
-from flask import Blueprint, render_template_string, request, redirect, jsonify, jsonify
+from datetime import datetime, timedelta
+from flask import Blueprint, render_template_string, request, redirect, jsonify
 
 yape_bp = Blueprint('yape', __name__)
 
@@ -19,7 +19,7 @@ def get_conn():
     )
 
 # =====================
-# IMPORTAR YAPE DESDE GMAIL
+# IMPORTAR YAPE DESDE GMAIL → tipo = 'YAPE'
 # =====================
 @yape_bp.route("/yape/importar")
 def importar_yape():
@@ -47,7 +47,7 @@ def importar_yape():
                     df = pd.read_excel(BytesIO(contenido), header=None)
                     df.columns = ["Tipo", "Origen", "Destino", "Monto", "Mensaje", "Fecha"]
                     df = df[df["Tipo"] == "TE PAGÓ"]
-                    df = df[["Tipo", "Origen", "Monto", "Fecha"]]
+                    df = df[["Origen", "Monto", "Fecha"]]
 
                     def parsear_fecha(valor):
                         if isinstance(valor, str):
@@ -62,7 +62,7 @@ def importar_yape():
                     for _, row in df.iterrows():
                         cur.execute("""
                             INSERT INTO yape_pagos (tipo, origen, monto, fecha)
-                            SELECT %s, %s, %s, %s
+                            SELECT 'YAPE', %s, %s, %s
                             WHERE NOT EXISTS (
                                 SELECT 1 FROM yape_pagos
                                 WHERE origen = %s AND monto = %s AND fecha = %s
@@ -85,7 +85,7 @@ def importar_yape():
 
 
 # =====================
-# INSERTAR PLIN MASIVO
+# INSERTAR PLIN MASIVO → tipo = 'PLIN'
 # =====================
 @yape_bp.route("/yape/insertar_plin", methods=["POST"])
 def insertar_plin():
@@ -126,11 +126,7 @@ def insertar_plin():
 # =====================
 @yape_bp.route("/yape")
 def reporte_yape():
-    from datetime import datetime, timedelta
-
     importados = request.args.get("importados", None)
-
-    # Ajuste manual: UTC - 5 horas (hora de Lima)
     fecha_filtro = request.args.get(
         "fecha",
         (datetime.utcnow() - timedelta(hours=5)).strftime("%Y-%m-%d")
@@ -147,7 +143,7 @@ def reporte_yape():
         total_hoy = cur.fetchone()[0]
 
         cur.execute("""
-            SELECT replace(tipo,'TE PAGÓ','YAPE'), origen, monto, fecha FROM yape_pagos
+            SELECT tipo, origen, monto, fecha FROM yape_pagos
             WHERE DATE(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Lima') = %s
             ORDER BY fecha DESC
         """, (fecha_filtro,))
@@ -238,7 +234,6 @@ HTML_TEMPLATE = """
     .badge-yape{background:rgba(147,51,234,.15);color:var(--yape2);padding:.15rem .5rem;border-radius:20px;font-size:.7rem;font-weight:700;}
     .badge-plin{background:rgba(0,168,107,.15);color:var(--plin);padding:.15rem .5rem;border-radius:20px;font-size:.7rem;font-weight:700;}
 
-    /* FORMULARIO PLIN */
     .card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:1.5rem;margin-bottom:1.5rem;}
     .card-title{font-size:.82rem;font-weight:700;color:var(--cream);text-transform:uppercase;letter-spacing:.05em;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;}
     .paste-area{width:100%;background:rgba(255,255,255,.04);border:2px dashed rgba(200,136,58,.3);border-radius:10px;color:var(--cream);font-family:'Lato',sans-serif;font-size:.85rem;padding:1rem;outline:none;resize:vertical;min-height:160px;line-height:1.7;}
@@ -347,7 +342,7 @@ HTML_TEMPLATE = """
             <tbody id="tablabody">
               {% for f in filas %}
               <tr>
-                <td><span class="{{ 'badge-plin' if 'PLIN' in f[1] else 'badge-yape' }}">{{ 'PLIN' if 'PLIN' in f[1] else 'YAPE' }}</span></td>
+                <td><span class="{{ 'badge-plin' if f[0] == 'PLIN' else 'badge-yape' }}">{{ f[0] }}</span></td>
                 <td><strong>{{ f[1] }}</strong></td>
                 <td class="monto">S/ {{ "%.2f"|format(f[2]) }}</td>
                 <td style="color:var(--muted)">{{ f[3] }}</td>
@@ -407,7 +402,6 @@ Blanca Ysabel Morales te ha plineado S/ 212.00"></textarea>
 <script>
 let detectados = [];
 
-// Poner fecha de hoy por defecto
 document.getElementById('fechaPlin').value = new Date().toISOString().split('T')[0];
 
 function switchTab(tab, btn) {
@@ -433,7 +427,6 @@ function leerTexto() {
   const texto = document.getElementById('textoPlin').value.trim();
   if (!texto) { showToast('⚠ Pega el texto primero'); return; }
 
-  // Detectar: "Nombre te ha plineado S/ monto"
   const regex = /(.+?)\s+te ha plineado\s+S\/\s*([\d,.]+)/gi;
   detectados = [];
   let match;
