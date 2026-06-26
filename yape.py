@@ -62,7 +62,7 @@ def importar_yape():
                     for _, row in df.iterrows():
                         cur.execute("""
                             INSERT INTO yape_pagos (tipo, origen, monto, fecha)
-                            SELECT tipo, %s, %s, %s
+                            SELECT %s, %s, %s, %s
                             WHERE NOT EXISTS (
                                 SELECT 1 FROM yape_pagos
                                 WHERE origen = %s AND monto = %s AND fecha = %s
