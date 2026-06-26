@@ -437,15 +437,18 @@ function leerTexto() {
   while ((match = regex.exec(texto)) !== null) {
     const nombre = match[1].trim();s
     const monto = parseFloat(match[2].replace(',', '.'));
-    const fechaRaw = match[3]; // 25/06/2026
-    const hora = match[4];     // 14:48
 
-  // Convertir DD/MM/YYYY → YYYY-MM-DD
-    const [dia, mes, anio] = fechaRaw.split('/');
-    const fecha = `${anio}-${mes}-${dia} ${hora}:00`;
+    let fechaFinal = null;
+
+    if (match[3] && match[4]) {
+      const fechaRaw = match[3]; // DD/MM/YYYY
+      const hora = match[4];     // HH:MM
+      const [dia, mes, anio] = fechaRaw.split('/');
+      fechaFinal = `${anio}-${mes}-${dia} ${hora}:00`;
+    }
 
     if (nombre && !isNaN(monto)) {
-      detectados.push({ nombre, monto, fecha });
+      detectados.push({ nombre, monto, fecha: fechaFinal });
     }
   }
 
