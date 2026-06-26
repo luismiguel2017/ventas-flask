@@ -99,16 +99,16 @@ def insertar_plin():
         insertados = 0
 
         for p in pagos:
-          fecha_pago = p.get("fecha", fecha)  # usa la fecha individual del pago
-          cur.execute("""
-            INSERT INTO yape_pagos (tipo, origen, monto, fecha)
-            SELECT 'PLIN', %s, %s, %s
-            WHERE NOT EXISTS (
-              SELECT 1 FROM yape_pagos
-              WHERE origen = %s AND monto = %s AND fecha = %s
-        )
-    """, (p["nombre"], p["monto"], fecha_pago,
-          p["nombre"], p["monto"], fecha_pago))
+            fecha_pago = p.get("fecha", fecha)  # usa la fecha individual del pago
+            cur.execute("""
+                INSERT INTO yape_pagos (tipo, origen, monto, fecha)
+                SELECT 'PLIN', %s, %s, %s
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM yape_pagos
+                    WHERE origen = %s AND monto = %s AND fecha = %s
+                )
+            """, (p["nombre"], p["monto"], fecha_pago,
+                  p["nombre"], p["monto"], fecha_pago))
 
         if cur.rowcount > 0:
           insertados += 1
