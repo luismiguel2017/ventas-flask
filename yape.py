@@ -99,17 +99,19 @@ def insertar_plin():
         insertados = 0
 
         for p in pagos:
-            cur.execute("""
-                INSERT INTO yape_pagos (tipo, origen, monto, fecha)
-                SELECT 'PLIN', %s, %s, %s
-                WHERE NOT EXISTS (
-                    SELECT 1 FROM yape_pagos
-                    WHERE origen = %s AND monto = %s AND DATE(fecha) = %s
-                )
-            """, (p["nombre"], p["monto"], fecha,
-                  p["nombre"], p["monto"], fecha))
-            if cur.rowcount > 0:
-                insertados += 1
+          fecha_pago = p.get("fecha", fecha)  # usa la fecha individual del pago
+          cur.execute("""
+            INSERT INTO yape_pagos (tipo, origen, monto, fecha)
+            SELECT 'PLIN', %s, %s, %s
+            WHERE NOT EXISTS (
+              SELECT 1 FROM yape_pagos
+              WHERE origen = %s AND monto = %s AND fecha = %s
+        )
+    """, (p["nombre"], p["monto"], fecha_pago,
+          p["nombre"], p["monto"], fecha_pago))
+
+        if cur.rowcount > 0:
+          insertados += 1
 
         conn.commit()
         cur.close()
@@ -427,17 +429,24 @@ function leerTexto() {
   const texto = document.getElementById('textoPlin').value.trim();
   if (!texto) { showToast('⚠ Pega el texto primero'); return; }
 
-  const regex = /(.+?)\s+te ha plineado\s+S\/\s*([\d,.]+)/gi;
-  detectados = [];
-  let match;
+const regex = /(.+?)\s+te ha plineado\s+S\/\s*([\d,.]+)\s*\nel\s+(\d{2}\/\d{2}\/\d{4})\s+a las\s+(\d{2}:\d{2})/gi;
+detectados = [];
+let match;
 
-  while ((match = regex.exec(texto)) !== null) {
-    const nombre = match[1].trim();
-    const monto = parseFloat(match[2].replace(',', '.'));
-    if (nombre && !isNaN(monto)) {
-      detectados.push({ nombre, monto });
-    }
+while ((match = regex.exec(texto)) !== null) {
+  const nombre = match[1].trim();
+  const monto = parseFloat(match[2].replace(',', '.'));
+  const fechaRaw = match[3]; // 25/06/2026
+  const hora = match[4];     // 14:48
+
+  // Convertir DD/MM/YYYY → YYYY-MM-DD
+  const [dia, mes, anio] = fechaRaw.split('/');
+  const fecha = `${anio}-${mes}-${dia} ${hora}:00`;
+
+  if (nombre && !isNaN(monto)) {
+    detectados.push({ nombre, monto, fecha });
   }
+}
 
   if (detectados.length === 0) {
     showToast('⚠ No se detectaron pagos. Revisa el formato.');
