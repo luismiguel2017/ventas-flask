@@ -429,24 +429,24 @@ function leerTexto() {
   const texto = document.getElementById('textoPlin').value.trim();
   if (!texto) { showToast('⚠ Pega el texto primero'); return; }
 
-const regex = /(.+?)\s+te ha plineado\s+S\/\s*([\d,.]+)\s*\nel\s+(\d{2}\/\d{2}\/\d{4})\s+a las\s+(\d{2}:\d{2})/gi;
-detectados = [];
-let match;
+  const regex = /(.+?)\s+te ha plineado\s+S\/\s*([\d,.]+)\s+el\s+(\d{2}\/\d{2}\/\d{4})\s+a las\s+(\d{2}:\d{2})/gi;
+  detectados = [];
+  let match;
 
-while ((match = regex.exec(texto)) !== null) {
-  const nombre = match[1].trim();
-  const monto = parseFloat(match[2].replace(',', '.'));
-  const fechaRaw = match[3]; // 25/06/2026
-  const hora = match[4];     // 14:48
+  while ((match = regex.exec(texto)) !== null) {
+    const nombre = match[1].trim();s
+    const monto = parseFloat(match[2].replace(',', '.'));
+    const fechaRaw = match[3]; // 25/06/2026
+    const hora = match[4];     // 14:48
 
   // Convertir DD/MM/YYYY → YYYY-MM-DD
-  const [dia, mes, anio] = fechaRaw.split('/');
-  const fecha = `${anio}-${mes}-${dia} ${hora}:00`;
+    const [dia, mes, anio] = fechaRaw.split('/');
+    const fecha = `${anio}-${mes}-${dia} ${hora}:00`;
 
-  if (nombre && !isNaN(monto)) {
-    detectados.push({ nombre, monto, fecha });
+    if (nombre && !isNaN(monto)) {
+      detectados.push({ nombre, monto, fecha });
+    }
   }
-}
 
   if (detectados.length === 0) {
     showToast('⚠ No se detectaron pagos. Revisa el formato.');
