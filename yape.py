@@ -126,8 +126,15 @@ def insertar_plin():
 # =====================
 @yape_bp.route("/yape")
 def reporte_yape():
+    from datetime import datetime, timedelta
+
     importados = request.args.get("importados", None)
-    fecha_filtro = request.args.get("fecha", datetime.now().strftime("%Y-%m-%d"))
+
+    # Ajuste manual: UTC - 5 horas (hora de Lima)
+    fecha_filtro = request.args.get(
+        "fecha",
+        (datetime.utcnow() - timedelta(hours=5)).strftime("%Y-%m-%d")
+    )
 
     try:
         conn = get_conn()
