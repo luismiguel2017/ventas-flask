@@ -429,7 +429,8 @@ function leerTexto() {
   const texto = document.getElementById('textoPlin').value.trim();
   if (!texto) { showToast('⚠ Pega el texto primero'); return; }
 
-  const regex = /(.+?)\s+te ha plineado\s+S\/\s*([\d,.]+)\s+el\s+(\d{2}\/\d{2}\/\d{4})\s+a las\s+(\d{2}:\d{2})/gi;
+  // Expresión regular corregida con [\s\S]*? para saltar los Enter/saltos de línea de Interbank de manera segura
+  const regex = /([A-Za-zÁÉÍÓÚñáéíóúÑ\s]+?)\s+te ha plineado\s+S\/\s*([\d,.]+)(?:[\s\S]*?el\s+(\d{2}\/\d{2}\/\d{4})\s+a las\s+(\d{2}:\d{2}))?/gi;
   detectados = [];
   let match;
 
