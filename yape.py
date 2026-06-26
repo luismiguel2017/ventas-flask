@@ -435,7 +435,7 @@ function leerTexto() {
   let match;
 
   while ((match = regex.exec(texto)) !== null) {
-    const nombre = match[1].trim();s
+    const nombre = match[1].trim();
     const monto = parseFloat(match[2].replace(',', '.'));
 
     let fechaFinal = null;
