@@ -340,7 +340,7 @@ HTML_TEMPLATE = """
             <tbody id="tablabody">
               {% for f in filas %}
               <tr>
-                <td><span class="{{ 'badge-plin' if 'PLIN' in f[1] else 'badge-yape' }}">{{ 'PLIN' if 'PLIN' in f[1] else 'Yape' }}</span></td>
+                <td><span class="{{ 'badge-plin' if 'PLIN' in f[1] else 'badge-yape' }}">{{ 'PLIN' if 'PLIN' in f[1] else 'YAPE' }}</span></td>
                 <td><strong>{{ f[1] }}</strong></td>
                 <td class="monto">S/ {{ "%.2f"|format(f[2]) }}</td>
                 <td style="color:var(--muted)">{{ f[3] }}</td>
