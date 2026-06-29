@@ -49,14 +49,22 @@ def registrar():
     return redirect(url_for("index"))
 
 # Listar productos (incluye id)
-@app.route("/listar_productos")
-def listar_productos():
+# =====================================================
+# AGREGA ESTE ENDPOINT EN TU app.py
+# Justo después de /listar_productos
+# =====================================================
+
+@app.route("/listar_productos_categoria/<categoria>")
+def listar_productos_categoria(categoria):
     if "usuario" not in session:
         return redirect(url_for("login.login"))
 
     conn = get_conn()
     cursor = conn.cursor()
-    cursor.execute("SELECT nombre, precio, id FROM productos ORDER BY id DESC;")
+    cursor.execute(
+        "SELECT nombre, precio, id FROM productos WHERE categoria = %s ORDER BY nombre ASC",
+        (categoria,)
+    )
     productos = cursor.fetchall()
     cursor.close()
     conn.close()

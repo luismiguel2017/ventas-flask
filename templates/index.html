@@ -58,13 +58,13 @@
       </a></li>
       <li><a href="#" onclick="mostrarSeccion('mesas'); cerrarMenu()">
         <i class="bi bi-grid-3x3-gap-fill"></i> Mesas
-         </a></li>
+      </a></li>
       <li><a href="/yape">
         <i class="bi bi-phone-fill"></i> Yape
-         </a></li>
+      </a></li>
       <li><a href="#" onclick="mostrarSeccion('producto'); cerrarMenu()">
         <i class="bi bi-plus-circle"></i> Ingresar Producto
-       </a></li>
+      </a></li>
     </ul>
   </div>
 
@@ -103,38 +103,65 @@
 
       <!-- Vista detalle mesa -->
       <div id="vista-detalle" style="display:none">
-        <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1rem;">
+
+        <!-- HEADER MESA -->
+        <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.2rem;">
           <button class="btn-volver" onclick="volverMesas()">
             <i class="bi bi-arrow-left"></i> Volver
           </button>
           <h4 class="section-title" id="detTitle" style="margin:0">Mesa 1</h4>
         </div>
 
-        <div class="search-wrap mb-3">
-          <i class="bi bi-search search-icon"></i>
-          <input type="text" id="buscarMesa" class="search-input" placeholder="Buscar producto..." oninput="filtrarProdsMesa(this.value)">
+        <!-- ══ VISTA CATEGORÍAS ══ -->
+        <div id="vista-categorias">
+          <p style="font-size:.85rem;color:#8a6a48;margin-bottom:1rem;">
+            Selecciona una categoría
+          </p>
+          <div class="mesas-grid" id="gridCategorias"></div>
         </div>
 
-        <div class="table-responsive">
-          <table id="tablaProductosMesa" class="table-custom">
-            <thead>
-              <tr>
-                <th>Producto</th>
-                <th>Precio (S/)</th>
-                <th>Cantidad</th>
-                <th>Seleccionar</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
+        <!-- ══ VISTA PRODUCTOS POR CATEGORÍA ══ -->
+        <div id="vista-productos-cat" style="display:none">
+
+          <!-- HEADER CATEGORÍA -->
+          <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1rem;">
+            <button class="btn-volver" onclick="volverCategorias()">
+              <i class="bi bi-arrow-left"></i> Volver
+            </button>
+            <h4 class="section-title" id="catTitle" style="margin:0">Jugos</h4>
+          </div>
+
+          <!-- BUSCADOR -->
+          <div class="search-wrap mb-3">
+            <i class="bi bi-search search-icon"></i>
+            <input type="text" id="buscarProd" class="search-input"
+              placeholder="Buscar producto..."
+              oninput="filtrarProdsMesa(this.value)">
+          </div>
+
+          <!-- TABLA PRODUCTOS -->
+          <div class="table-responsive">
+            <table id="tablaProductosMesa" class="table-custom">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>Precio (S/)</th>
+                  <th>Cantidad</th>
+                  <th>Seleccionar</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <button class="btn-agregar-mesa mt-3" onclick="agregarAMesa()">
+            <i class="bi bi-plus-circle me-2"></i>Agregar a Mesa
+          </button>
+
         </div>
 
-        <button class="btn-agregar-mesa mt-3" onclick="agregarAMesa()">
-          <i class="bi bi-plus-circle me-2"></i>Agregar a Mesa
-        </button>
-
-        <!-- Pedido acumulado -->
-        <div class="pedido-wrap" id="pedidoWrap" style="display:none">
+        <!-- ══ PEDIDO ACUMULADO (siempre visible) ══ -->
+        <div class="pedido-wrap mt-3" id="pedidoWrap" style="display:none">
           <div class="pedido-header">Pedido acumulado</div>
           <div id="pedidoItems"></div>
           <div class="pedido-total">
@@ -158,25 +185,26 @@
           <input type="text" name="nombre" class="input-custom" placeholder="Ej. Tamal" required>
         </div>
 
-    <div class="mb-3">
-      <label class="form-label-custom">Categoría</label>
-      <select name="categoria" class="input-custom" required>
-        <option value="">— Seleccionar categoría —</option>
-        <option value="Jugos">🧃 Jugos</option>
-        <option value="Sandwiches">🥪 Sánguches</option>
-        <option value="Calientes">☕ Calientes</option>
-        <option value="Dulces">🍰 Dulces</option>
-        <option value="Salados">🥟 Salados</option>
-        <option value="Fríos">🧊 Fríos</option>
-        <option value="Menú">🍽️ Menú</option>
-        <option value="Golosinas\Piqueos">🍬 Golosinas</option>
-      </select>
-    </div>    
+        <div class="mb-3">
+          <label class="form-label-custom">Categoría</label>
+          <select name="categoria" class="input-custom" required>
+            <option value="">— Seleccionar categoría —</option>
+            <option value="Jugos">🧃 Jugos</option>
+            <option value="Sánguches">🥪 Sánguches</option>
+            <option value="Calientes">☕ Calientes</option>
+            <option value="Dulces">🍰 Dulces</option>
+            <option value="Salados">🥟 Salados</option>
+            <option value="Fríos">🧊 Fríos</option>
+            <option value="Menú">🍽️ Menú</option>
+            <option value="Golosinas\Piqueos">🍬 Golosinas</option>
+          </select>
+        </div>
 
-    <div class="mb-3">
-      <label class="form-label-custom">Precio (S/)</label>
-      <input type="number" name="precio" class="input-custom" step="0.01" placeholder="0.00" required>
-    </div>
+        <div class="mb-3">
+          <label class="form-label-custom">Precio (S/)</label>
+          <input type="number" name="precio" class="input-custom" step="0.01" placeholder="0.00" required>
+        </div>
+
         <button type="submit" class="btn-confirm">
           <i class="bi bi-save me-2"></i>Guardar Producto
         </button>

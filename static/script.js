@@ -1,5 +1,6 @@
 let mesaActualId = null;
 let todosLosProductos = [];
+let pedidoAcumulado = [];
 
 // =====================
 // MESAS
@@ -26,22 +27,76 @@ function cargarMesas() {
 
 function abrirMesa(id, numero) {
   mesaActualId = id;
+  pedidoAcumulado = [];
+
+  // Mostrar vista detalle, ocultar vista mesas
   document.getElementById('vista-mesas').style.display = 'none';
   document.getElementById('vista-detalle').style.display = 'block';
+  document.getElementById('vista-categorias').style.display = 'block';
+  document.getElementById('vista-productos-cat').style.display = 'none';
   document.getElementById('detTitle').textContent = 'Mesa ' + numero;
-  cargarProductosMesa();
+
+  // Cargar pedido existente y categorías
   cargarPedidoMesa();
+  renderCategorias();
 }
 
 function volverMesas() {
   mesaActualId = null;
+  pedidoAcumulado = [];
   document.getElementById('vista-mesas').style.display = 'block';
   document.getElementById('vista-detalle').style.display = 'none';
   cargarMesas();
 }
 
-function cargarProductosMesa() {
-  fetch('/listar_productos')
+function volverCategorias() {
+  document.getElementById('vista-categorias').style.display = 'block';
+  document.getElementById('vista-productos-cat').style.display = 'none';
+  document.getElementById('buscarProd').value = '';
+}
+
+// =====================
+// CATEGORÍAS
+// =====================
+const categorias = [
+  { nombre: 'Jugos',     icon: '🧃' },
+  { nombre: 'Sandwiches', icon: '🥪' },
+  { nombre: 'Calientes', icon: '☕' },
+  { nombre: 'Dulces',    icon: '🍰' },
+  { nombre: 'Salados',   icon: '🥟' },
+  { nombre: 'Fríos',     icon: '🧊' },
+  { nombre: 'Menú',      icon: '🍽️' },
+  { nombre: 'Golosinas y piqueos', icon: '🍬' },
+];
+
+function renderCategorias() {
+  const grid = document.getElementById('gridCategorias');
+  grid.innerHTML = '';
+  categorias.forEach(cat => {
+    const card = document.createElement('div');
+    card.className = 'mesa-card';
+    card.innerHTML = `
+      <div class="mesa-numero">${cat.icon}</div>
+      <div class="mesa-estado">${cat.nombre}</div>
+    `;
+    card.onclick = () => abrirCategoria(cat.nombre, cat.icon);
+    grid.appendChild(card);
+  });
+}
+
+function abrirCategoria(nombre, icon) {
+  document.getElementById('vista-categorias').style.display = 'none';
+  document.getElementById('vista-productos-cat').style.display = 'block';
+  document.getElementById('catTitle').textContent = icon + ' ' + nombre;
+  document.getElementById('buscarProd').value = '';
+  cargarProductosPorCategoria(nombre);
+}
+
+// =====================
+// PRODUCTOS POR CATEGORÍA
+// =====================
+function cargarProductosPorCategoria(categoria) {
+  fetch('/listar_productos_categoria/' + encodeURIComponent(categoria))
     .then(r => r.json())
     .then(data => {
       todosLosProductos = data;
@@ -53,6 +108,7 @@ function renderTablaProductosMesa(lista) {
   const tbody = document.querySelector('#tablaProductosMesa tbody');
   tbody.innerHTML = '';
   lista.forEach(prod => {
+    // prod = [nombre, precio, id]
     const fila = document.createElement('tr');
     fila.dataset.productoId = prod[2];
     fila.dataset.precio = prod[1];
@@ -110,9 +166,13 @@ function agregarAMesa() {
       document.querySelectorAll('#tablaProductosMesa input[type="checkbox"]').forEach(cb => cb.checked = false);
       document.querySelectorAll('#tablaProductosMesa .qty-input').forEach(inp => inp.value = 1);
       cargarPedidoMesa();
+      Swal.fire({ icon: 'success', title: '¡Agregado!', text: 'Productos agregados a la mesa', confirmButtonColor: '#c8883a', timer: 1200, showConfirmButton: false });
     });
 }
 
+// =====================
+// PEDIDO ACUMULADO
+// =====================
 function cargarPedidoMesa() {
   fetch('/pedido_mesa/' + mesaActualId)
     .then(r => r.json())
