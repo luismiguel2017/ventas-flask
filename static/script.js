@@ -123,8 +123,13 @@ function renderTablaProductosMesa(lista) {
           <button class="qty-btn" onclick="cambiarCantidad(this, 1)">+</button>
         </div>
       </td>
-      <td><input type="checkbox" style="width:18px;height:18px;accent-color:var(--accent);cursor:pointer;"></td>
     `;
+    fila.style.cursor = 'pointer';
+    fila.onclick = function(e) {
+      // No activar si hace clic en los botones +/-
+      if (e.target.closest('.qty-btn') || e.target.closest('.qty-input')) return;
+      fila.classList.toggle('fila-seleccionada');
+    };
     tbody.appendChild(fila);
   });
 }
@@ -139,9 +144,8 @@ function agregarAMesa() {
   const filas = document.querySelectorAll('#tablaProductosMesa tbody tr');
   const productos = [];
   filas.forEach(fila => {
-    const cb = fila.querySelector('input[type="checkbox"]');
     const qty = fila.querySelector('.qty-input');
-    if (cb && cb.checked) {
+    if (fila.classList.contains('fila-seleccionada')) {
       productos.push({
         id: fila.dataset.productoId,
         nombre: fila.dataset.nombre,

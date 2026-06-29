@@ -561,3 +561,8 @@ select.input-custom option {
   background-color: #1e1208;
   color: #f2e4cc;
 }
+
+.fila-seleccionada {
+  background: rgba(200, 136, 58, 0.20) !important;
+  border-left: 3px solid var(--accent);
+}
