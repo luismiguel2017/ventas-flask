@@ -157,10 +157,26 @@
           <label class="form-label-custom">Nombre del Producto</label>
           <input type="text" name="nombre" class="input-custom" placeholder="Ej. Tamal" required>
         </div>
-        <div class="mb-3">
-          <label class="form-label-custom">Precio (S/)</label>
-          <input type="number" name="precio" class="input-custom" step="0.01" placeholder="0.00" required>
-        </div>
+
+    <div class="mb-3">
+      <label class="form-label-custom">Categoría</label>
+      <select name="categoria" class="input-custom" required>
+        <option value="">— Seleccionar categoría —</option>
+        <option value="Jugos">🧃 Jugos</option>
+        <option value="Sandwiches">🥪 Sánguches</option>
+        <option value="Calientes">☕ Calientes</option>
+        <option value="Dulces">🍰 Dulces</option>
+        <option value="Salados">🥟 Salados</option>
+        <option value="Fríos">🧊 Fríos</option>
+        <option value="Menú">🍽️ Menú</option>
+        <option value="Golosinas\Piqueos">🍬 Golosinas</option>
+      </select>
+    </div>    
+
+    <div class="mb-3">
+      <label class="form-label-custom">Precio (S/)</label>
+      <input type="number" name="precio" class="input-custom" step="0.01" placeholder="0.00" required>
+    </div>
         <button type="submit" class="btn-confirm">
           <i class="bi bi-save me-2"></i>Guardar Producto
         </button>

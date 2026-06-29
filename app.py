@@ -37,10 +37,11 @@ def registrar():
 
     nombre = request.form["nombre"]
     precio = request.form["precio"]
+    categoria = request.form["categoria"]
 
     conn = get_conn()
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO productos (nombre, precio) VALUES (%s, %s)", (nombre, precio))
+    cursor.execute("INSERT INTO productos (nombre, precio, categoria) VALUES (%s, %s, %s)", (nombre, precio, categoria))
     conn.commit()
     cursor.close()
     conn.close()
