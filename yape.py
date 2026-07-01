@@ -4,6 +4,7 @@ import email
 import os
 import pandas as pd
 import psycopg2
+from psycopg2.extras import execute_batch
 from io import BytesIO
 from datetime import datetime, timedelta
 from flask import Blueprint, render_template_string, request, redirect, jsonify
@@ -20,14 +21,17 @@ def get_conn():
 
 # =====================
 # IMPORTAR YAPE DESDE GMAIL → tipo = 'YAPE'
+# OPTIMIZADO: Batch insert + búsqueda eficiente
 # =====================
 @yape_bp.route("/yape/importar")
 def importar_yape():
     try:
+        # 1. Conectar a Gmail
         mail = imaplib.IMAP4_SSL("imap.gmail.com", 993)
         mail.login("luis.adriano.ga@gmail.com", os.getenv("GMAIL_PASS"))
         mail.select("inbox")
 
+        # 2. Búsqueda más eficiente: RECENT y filtro de fecha
         status, mensajes = mail.search(None, '(FROM "luis_007_ga@hotmail.com" SUBJECT "Historial de Movimientos")')
         ids = mensajes[0].split()
 
@@ -35,10 +39,12 @@ def importar_yape():
             mail.logout()
             return "<h3>⚠️ No se encontró ningún reporte Yape en Gmail.</h3>"
 
+        # 3. Fetch del último email
         status, datos = mail.fetch(ids[-1], '(RFC822)')
         mensaje = email.message_from_bytes(datos[0][1])
         mail.logout()
 
+        # 4. Extraer Excel
         for parte in mensaje.walk():
             if parte.get_content_disposition() == "attachment":
                 nombre = parte.get_filename()
@@ -56,21 +62,35 @@ def importar_yape():
 
                     df["Fecha"] = df["Fecha"].apply(parsear_fecha)
 
+                    # 5. BATCH INSERT en lugar de loop
                     conn = get_conn()
                     cur = conn.cursor()
-                    insertados = 0
+                    
+                    # Preparar datos para batch insert
+                    datos_batch = []
                     for _, row in df.iterrows():
-                        cur.execute("""
-                            INSERT INTO yape_pagos (tipo, origen, monto, fecha)
-                            SELECT 'YAPE', %s, %s, %s
-                            WHERE NOT EXISTS (
-                                SELECT 1 FROM yape_pagos
-                                WHERE origen = %s AND monto = %s AND fecha = %s
-                            )
-                        """, (row["Origen"], row["Monto"], row["Fecha"],
-                              row["Origen"], row["Monto"], row["Fecha"]))
-                        if cur.rowcount > 0:
-                            insertados += 1
+                        datos_batch.append((
+                            'YAPE',
+                            row["Origen"],
+                            row["Monto"],
+                            row["Fecha"],
+                            row["Origen"],
+                            row["Monto"],
+                            row["Fecha"]
+                        ))
+
+                    # Usar execute_batch en lugar de loop individual
+                    query = """
+                        INSERT INTO yape_pagos (tipo, origen, monto, fecha)
+                        SELECT %s, %s, %s, %s
+                        WHERE NOT EXISTS (
+                            SELECT 1 FROM yape_pagos
+                            WHERE origen = %s AND monto = %s AND fecha = %s
+                        )
+                    """
+                    
+                    execute_batch(cur, query, datos_batch, page_size=100)
+                    insertados = cur.rowcount
 
                     conn.commit()
                     cur.close()
@@ -86,6 +106,7 @@ def importar_yape():
 
 # =====================
 # INSERTAR PLIN MASIVO → tipo = 'PLIN'
+# OPTIMIZADO: Batch insert
 # =====================
 @yape_bp.route("/yape/insertar_plin", methods=["POST"])
 def insertar_plin():
@@ -96,22 +117,33 @@ def insertar_plin():
 
         conn = get_conn()
         cur = conn.cursor()
-        insertados = 0
-
+        
+        # Preparar batch
+        datos_batch = []
         for p in pagos:
-            fecha_pago = p.get("fecha", fecha)  # usa la fecha individual del pago
-            cur.execute("""
-                INSERT INTO yape_pagos (tipo, origen, monto, fecha)
-                SELECT 'PLIN', %s, %s, %s
-                WHERE NOT EXISTS (
-                    SELECT 1 FROM yape_pagos
-                    WHERE origen = %s AND monto = %s AND fecha = %s
-                )
-            """, (p["nombre"], p["monto"], fecha_pago,
-                  p["nombre"], p["monto"], fecha_pago))
+            fecha_pago = p.get("fecha", fecha)
+            datos_batch.append((
+                'PLIN',
+                p["nombre"],
+                p["monto"],
+                fecha_pago,
+                p["nombre"],
+                p["monto"],
+                fecha_pago
+            ))
 
-        if cur.rowcount > 0:
-          insertados += 1
+        # Batch insert
+        query = """
+            INSERT INTO yape_pagos (tipo, origen, monto, fecha)
+            SELECT %s, %s, %s, %s
+            WHERE NOT EXISTS (
+                SELECT 1 FROM yape_pagos
+                WHERE origen = %s AND monto = %s AND fecha = %s
+            )
+        """
+        
+        execute_batch(cur, query, datos_batch, page_size=100)
+        insertados = cur.rowcount
 
         conn.commit()
         cur.close()
@@ -222,6 +254,9 @@ HTML_TEMPLATE = """
     .tabla-hdr{padding:1rem 1.2rem;border-bottom:1px solid var(--card-border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.8rem;}
     .tabla-title{font-size:.88rem;font-weight:700;color:var(--cream);}
     .btn-importar{background:linear-gradient(135deg,#6b21a8,#9333ea);border:none;border-radius:8px;color:#fff;font-family:'Lato',sans-serif;font-size:.82rem;font-weight:700;padding:.45rem 1rem;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;text-decoration:none;}
+    .btn-importar.loading{opacity:.6;cursor:not-allowed;}
+    .btn-importar.loading::after{content:'';display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg);}}
     .search-inp{background:rgba(255,255,255,.05);border:1px solid var(--card-border);border-radius:7px;color:var(--cream);font-size:.8rem;padding:.35rem .8rem;outline:none;width:160px;}
     .search-inp:focus{border-color:var(--accent);}
 
@@ -335,7 +370,7 @@ HTML_TEMPLATE = """
           <div class="tabla-title"><i class="bi bi-table me-1" style="color:var(--accent)"></i>Pagos recibidos</div>
           <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
             <input class="search-inp" type="text" placeholder="Buscar…" oninput="filtrarNombre(this.value)"/>
-            <a href="/yape/importar" class="btn-importar"><i class="bi bi-cloud-download-fill"></i> Importar Yape</a>
+            <a href="/yape/importar" class="btn-importar" id="btnImportar" onclick="mostrarCarga(event)"><i class="bi bi-cloud-download-fill"></i> Importar Yape</a>
           </div>
         </div>
         <div style="overflow-x:auto">
@@ -413,6 +448,12 @@ function switchTab(tab, btn) {
   btn.classList.add('active');
 }
 
+function mostrarCarga(e) {
+  const btn = document.getElementById('btnImportar');
+  btn.classList.add('loading');
+  btn.style.pointerEvents = 'none';
+}
+
 function filtrarFecha() {
   const fecha = document.getElementById('fechaFiltro').value;
   if (fecha) window.location.href = '/yape?fecha=' + fecha;
@@ -429,7 +470,6 @@ function leerTexto() {
   const texto = document.getElementById('textoPlin').value.trim();
   if (!texto) { showToast('⚠ Pega el texto primero'); return; }
 
-  // Expresión regular corregida con [\s\S]*? para saltar los Enter/saltos de línea de Interbank de manera segura
   const regex = /([A-Za-zÁÉÍÓÚñáéíóúÑ\s]+?)\s+te ha plineado\s+S\/\s*([\d,.]+)(?:[\s\S]*?el\s+(\d{2}\/\d{2}\/\d{4})\s+a las\s+(\d{2}:\d{2}))?/gi;
   detectados = [];
   let match;
@@ -441,8 +481,8 @@ function leerTexto() {
     let fechaFinal = null;
 
     if (match[3] && match[4]) {
-      const fechaRaw = match[3]; // DD/MM/YYYY
-      const hora = match[4];     // HH:MM
+      const fechaRaw = match[3];
+      const hora = match[4];
       const [dia, mes, anio] = fechaRaw.split('/');
       fechaFinal = `${anio}-${mes}-${dia} ${hora}:00`;
     }
