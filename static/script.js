@@ -96,6 +96,9 @@ function abrirCategoria(nombre, icon) {
 // PRODUCTOS POR CATEGORÍA
 // =====================
 function cargarProductosPorCategoria(categoria) {
+  // Limpiar tabla inmediatamente antes del fetch
+  const tbody = document.querySelector('#tablaProductosMesa tbody');
+  tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:1.5rem;color:#8a6a48;">Cargando...</td></tr>';
   fetch('/listar_productos_categoria/' + encodeURIComponent(categoria))
     .then(r => r.json())
     .then(data => {
